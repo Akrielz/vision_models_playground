@@ -46,7 +46,9 @@ class VisionTransformer(nn.Module):
         self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
         self.dropout = nn.Dropout(emb_dropout)
 
-        self.transformer = TransformerEncoder(dim, depth, heads, dim_head, mlp_dim, dropout, apply_rotary_emb)
+        self.transformer = TransformerEncoder(
+            dim, depth, heads, dim_head, mlp_dim, dropout, dropout, apply_rotary_emb
+        )
 
         self.pool = pool
 

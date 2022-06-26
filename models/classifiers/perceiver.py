@@ -2,15 +2,16 @@ from typing import Union, List, Callable, Optional
 
 import torch
 from einops import rearrange, repeat
-from einops.layers.torch import Reduce
+from einops.layers.torch import Reduce, Rearrange
 from torch import nn
-from torch.nn import functional as F
 
 from models.components.activations.geglu import GEGLU
 from models.components.attention.attend import Attend
 from models.components.attention.feed_forward import FeedForward
 from models.components.attention.transformer_encoder import TransformerEncoder
 from models.components.position_embedding.fourrier_embedding import FourierEmbedding
+from utility.datasets import get_cifar10_dataset, get_mnist_dataset
+from utility.train_models import train_model
 
 
 class Perceiver(nn.Module):
@@ -43,9 +44,9 @@ class Perceiver(nn.Module):
 
             transformer_depth: int = 2,
 
-            attention_dropout: float = 0.,
+            attention_dropout: float = 0.0,
             ff_hidden_dim: 512 = 512,
-            ff_dropout: float = 0.,
+            ff_dropout: float = 0.0,
             activation: Optional[Callable] = None,
     ):
         """
@@ -97,8 +98,8 @@ class Perceiver(nn.Module):
         # Build layers
         self.layers = nn.ModuleList([])
         for i in range(num_layers):
-            # Build Cross Attend
             layer = nn.ModuleList([])
+
             layer.append(create_cross_attend())
             layer.append(create_latent_transformer())
 
@@ -141,10 +142,7 @@ class Perceiver(nn.Module):
         x = rearrange(x, "b ... d -> b (...) d")
 
         for cross_attend, transformer in self.layers:
-            # Apply cross attend
             latents = cross_attend(latents, x, mask)
-
-            # Apply transformer
             latents = transformer(latents)
 
         output = self.classifier(latents)
@@ -153,15 +151,37 @@ class Perceiver(nn.Module):
 
 def main():
     model = Perceiver(
-        input_dim=32,
-        input_axis=1,
+        input_dim=1,
+        input_axis=2,
         final_classifier_head=True,
         num_classes=10,
+        apply_rotary_emb=True,
+        apply_fourier_encoding=True,
+        max_freq=10,
+        num_freq_bands=6,
+        constant_mapping=False,
+        max_position=1600,
+        num_layers=4,
+        num_latents=16,
+        latent_dim=32,
+        cross_num_heads=4,
+        cross_head_dim=32,
+        self_attend_heads=4,
+        self_attend_dim=32,
+        transformer_depth=2,
+        attention_dropout=0.,
+        ff_hidden_dim=64,
+        ff_dropout=0.,
+        activation=None,
+    ).cuda()
+
+    model = nn.Sequential(
+        Rearrange("b c h w -> b h w c"),
+        model,
     )
 
-    x = torch.randn(1, 64, 32)
-    output = model(x)
-    print (output.shape)
+    dataset_train, dataset_test = get_mnist_dataset()
+    train_model(model, dataset_train, dataset_test, batch_size=128)
 
 
 if __name__ == "__main__":
