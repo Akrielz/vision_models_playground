@@ -3,7 +3,6 @@ from typing import Optional, Callable
 import torch
 from torch import nn
 
-from models.components.activations.relu_squared import ReluSquared
 from models.components.attention.attention import Attention
 from models.components.attention.feed_forward import FeedForward
 from models.components.attention.pre_norm import PreNorm
@@ -14,11 +13,11 @@ class Attend(nn.Module):
             self,
             query_dim: int,
             context_dim: Optional[int] = None,
-            attn_heads: int = 8,
-            attn_dim_head: int = 64,
-            attn_dropout: float = 0.0,
+            num_heads: int = 8,
+            head_dim: int = 64,
+            attention_dropout: float = 0.0,
             apply_rotary_emb: bool = False,
-            hidden_dim: int = 256,
+            ff_hidden_dim: int = 256,
             ff_dropout: float = 0.0,
             activation: Callable = None
     ):
@@ -29,9 +28,9 @@ class Attend(nn.Module):
             fn=Attention(
                 query_dim=query_dim,
                 context_dim=context_dim,
-                heads=attn_heads,
-                dim_head=attn_dim_head,
-                dropout=attn_dropout,
+                heads=num_heads,
+                dim_head=head_dim,
+                dropout=attention_dropout,
                 apply_rotary_emb=apply_rotary_emb
             ),
             context_dim=context_dim
@@ -41,7 +40,7 @@ class Attend(nn.Module):
             dim=query_dim,
             fn=FeedForward(
                 dim=query_dim,
-                hidden_dim=hidden_dim,
+                hidden_dim=ff_hidden_dim,
                 dropout=ff_dropout,
                 activation=activation
             )

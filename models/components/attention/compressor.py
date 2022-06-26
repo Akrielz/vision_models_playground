@@ -37,11 +37,11 @@ class Compressor(nn.Module):
         self.cross_attend = Attend(
             query_dim=input_dim,
             context_dim=input_dim,
-            attn_heads=attn_heads,
-            attn_dim_head=attn_dim_head,
-            attn_dropout=attn_dropout,
+            num_heads=attn_heads,
+            head_dim=attn_dim_head,
+            attention_dropout=attn_dropout,
             apply_rotary_emb=False,
-            hidden_dim=hidden_dim,
+            ff_hidden_dim=hidden_dim,
             ff_dropout=ff_dropout
         )
 

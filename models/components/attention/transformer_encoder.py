@@ -1,3 +1,5 @@
+from typing import Optional, Callable
+
 import torch
 from torch import nn
 
@@ -10,10 +12,12 @@ class TransformerEncoder(nn.Module):
             dim: int,
             depth: int,
             heads: int,
-            dim_head: int,
+            head_dim: int,
             mlp_dim: int,
-            dropout: float = 0.0,
-            apply_rotary_emb: bool = False
+            mlp_dropout: float = 0.0,
+            attention_dropout: float = 0.0,
+            apply_rotary_emb: bool = False,
+            activation: Optional[Callable] = None
     ):
         super().__init__()
 
@@ -21,12 +25,13 @@ class TransformerEncoder(nn.Module):
             return Attend(
                 query_dim=dim,
                 context_dim=None,
-                attn_heads=heads,
-                attn_dim_head=dim_head,
-                attn_dropout=dropout,
-                hidden_dim=mlp_dim,
-                ff_dropout=dropout,
+                num_heads=heads,
+                head_dim=head_dim,
+                attention_dropout=attention_dropout,
+                ff_hidden_dim=mlp_dim,
+                ff_dropout=mlp_dropout,
                 apply_rotary_emb=apply_rotary_emb,
+                activation=activation
             )
 
         self.layers = nn.ModuleList([])
