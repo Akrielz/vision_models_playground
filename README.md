@@ -5,6 +5,7 @@
 - [Description](#description)
 - [ResNet](#resnet)
 - [VisionTransformer](#visiontransformer)
+- [Generative Adversarial Networks](#generative-adversarial-networks-gan)
 
 ## Description
 
