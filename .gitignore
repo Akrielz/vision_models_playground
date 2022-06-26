@@ -128,10 +128,18 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Inside folders that are not tracked by git
 .scripts/
+.scripts/*
 
 .samples/
+.samples/*
 
 .models_checkpoints/
+.models_checkpoints/*
 
 .data/
+.data/*
+
+.idea/
+.idea/*
