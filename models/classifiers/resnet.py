@@ -87,45 +87,50 @@ class ResNet(nn.Module):
         return out
 
 
-def build_resnet18(num_classes: int = 10):
+def build_resnet18(num_classes: int = 10, in_channels: int = 3):
     return ResNet(
         num_classes=num_classes,
+        in_channels=in_channels,
         num_layers=[2, 2, 2, 2],
         num_channels=[64, 128, 256, 512],
         block=ResidualBlock
     )
 
 
-def build_resnet34(num_classes: int = 10):
+def build_resnet34(num_classes: int = 10, in_channels: int = 3):
     return ResNet(
         num_classes=num_classes,
+        in_channels=in_channels,
         num_layers=[3, 4, 6, 3],
         num_channels=[64, 128, 256, 512],
         block=ResidualBlock
     )
 
 
-def build_resnet50(num_classes: int = 10):
+def build_resnet50(num_classes: int = 10, in_channels: int = 3):
     return ResNet(
         num_classes=num_classes,
+        in_channels=in_channels,
         num_layers=[3, 4, 6, 3],
         num_channels=[64, 128, 256, 512],
         block=BottleneckBlock
     )
 
 
-def build_resnet101(num_classes: int = 10):
+def build_resnet101(num_classes: int = 10, in_channels: int = 3):
     return ResNet(
         num_classes=num_classes,
+        in_channels=in_channels,
         num_layers=[3, 4, 23, 3],
         num_channels=[64, 128, 256, 512],
         block=BottleneckBlock
     )
 
 
-def build_resnet152(num_classes: int = 10):
+def build_resnet152(num_classes: int = 10, in_channels: int = 3):
     return ResNet(
         num_classes=num_classes,
+        in_channels=in_channels,
         num_layers=[3, 8, 36, 3],
         num_channels=[64, 256, 512, 1024],
         block=BottleneckBlock

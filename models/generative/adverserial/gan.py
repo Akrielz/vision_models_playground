@@ -4,12 +4,12 @@ from torch import nn
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 
-from models.generative.adverserial.discriminator import Discriminator
-from models.generative.adverserial.generator import Generator
+from models.generative.adverserial.mnist_discriminator import Discriminator
+from models.generative.adverserial.mnist_generator import Generator
 
 
 class GAN(nn.Module):
-    def __init__(self, generator, discriminator):
+    def __init__(self, generator: nn.Module, discriminator: nn.Module):
         """
         Initialize the GAN.
         :param generator: the generator network
@@ -29,7 +29,7 @@ class GAN(nn.Module):
 
         self.noise_dim = self.generator.noise_dim
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor):
         """
         Forward pass of the GAN.
         :param x: noise vector
@@ -40,15 +40,16 @@ class GAN(nn.Module):
         pred = self.discriminator(x)
         return img, pred
 
-    def predict(self, x):
+    def predict(self, x: torch.Tensor):
         """
         Predict the probability of the input being real.
         :param x: images to predict on
         :return: predicted probability
         """
+
         return self.discriminator.predict(x)
 
-    def generate(self, noise):
+    def generate(self, noise: torch.Tensor):
         """
         Generate a set of samples from the generator, using the given noise
         :param noise: The noise to use to generate the samples
@@ -57,7 +58,7 @@ class GAN(nn.Module):
 
         return self.generator(noise)
 
-    def generate_sample(self, num_instances=10):
+    def generate_sample(self, num_instances: int = 10):
         """
         Generate a set of samples from the generator.
         :param num_instances: number of samples to generate
@@ -69,7 +70,7 @@ class GAN(nn.Module):
             x_gen = self.generator(z)
             return x_gen
 
-    def generate_quality_samples(self, num_instances=10, step=10):
+    def generate_quality_samples(self, num_instances: int = 10, step: int = 10):
         """
         Generate a set of quality samples from the generator, using the discriminator predictions.
         :param num_instances: number of samples to generate
@@ -77,7 +78,11 @@ class GAN(nn.Module):
         :return: a list of generated samples
         """
 
-        results = torch.zeros(0, 1, 28, 28).cuda()
+        # Init the results list with the proper shape
+        generated_sample = self.generate_sample(1)
+        batch_size, *generated_shape = generated_sample.shape
+        results = torch.zeros(0, *generated_shape).cuda()
+
         with torch.no_grad():
             while results.shape[0] < num_instances:
                 z = torch.randn(step, self.noise_dim).cuda()
@@ -92,7 +97,7 @@ class GAN(nn.Module):
             results = results[:num_instances]
             return results
 
-    def train_step(self, x):
+    def train_step(self, x: torch.Tensor):
         """
         Train the GAN for one step.
         :param x: The real images to train on
@@ -120,7 +125,7 @@ class GAN(nn.Module):
 
         return d_loss, g_loss
 
-    def discriminator_loss(self, x, x_gen):
+    def discriminator_loss(self, x: torch.Tensor, x_gen: torch.Tensor):
         """
         Compute the discriminator loss.
         :param x: The real images
@@ -142,7 +147,7 @@ class GAN(nn.Module):
         d_loss = real_loss + fake_loss
         return d_loss
 
-    def generator_loss(self, x_gen):
+    def generator_loss(self, x_gen: torch.Tensor):
         """
         Compute the generator loss.
         :param x_gen: The generated images
@@ -154,33 +159,54 @@ class GAN(nn.Module):
         g_loss = self.loss_func(y_pred, y)
         return g_loss
 
-    def train_epochs(self, train_loader, epochs=10, print_every=100):
+    def train_epochs(
+            self,
+            train_loader: torch.utils.data.DataLoader,
+            epochs: int = 10,
+            print_every: int = 100,
+            save_checkpoint: bool = True,
+            generate_images: bool = True
+    ):
         """
         Train the GAN for a number of epochs.
         :param train_loader: The data loader for the training data
         :param epochs: The number of epochs to train for
         :param print_every: The number of steps to print the loss every
+        :param save_checkpoint: Whether to save the model after each epoch
+        :param generate_images: Whether to generate images after each print_every steps inside the epoch
         :return: None
         """
 
         for epoch in range(epochs):
-            for i, (x, _) in enumerate(train_loader):
+            for i, x in enumerate(train_loader):
+                if isinstance(x, tuple):
+                    x = x[0]
+
                 x = x.cuda()
                 d_loss, g_loss = self.train_step(x)
 
-                if i % print_every == 0:
-                    print('Epoch: {}, Iteration: {}, D_Loss: {}, G_Loss: {}'.format(epoch, i, d_loss, g_loss))
+                if i % print_every != 0:
+                    continue
 
-                    # generate a image
-                    z = torch.randn(1, 100).cuda()
+                print('Epoch: {}, Iteration: {}, D_Loss: {}, G_Loss: {}'.format(epoch, i, d_loss, g_loss))
+
+                if not generate_images:
+                    continue
+
+                # generate a image
+                with torch.no_grad():
+                    z = torch.randn(1, self.noise_dim).cuda()
                     x_gen = self.generator(z)
 
                     # save the image
                     save_image(x_gen, 'images/{}.png'.format(i))
 
             # save the model
-            torch.save(self.generator.state_dict(), '../../../models_checkpoints/generator.pt')
-            torch.save(self.discriminator.state_dict(), '../../../models_checkpoints/discriminator.pt')
+            if not save_checkpoint:
+                continue
+
+            torch.save(self.generator.state_dict(), 'models_checkpoints/generator.pt')
+            torch.save(self.discriminator.state_dict(), 'models_checkpoints/discriminator.pt')
 
 
 def main():
