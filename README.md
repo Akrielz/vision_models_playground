@@ -232,10 +232,12 @@ probability of the image being real.
 
 ### Results
 
-This is a sample of the results of the GAN.  
+This is a sample of the results of the GAN on MNIST.  
+
 <img src="./readme_assets/fake_images.png" width="500px"></img>
 
 For reference, this is a sample of the original MNIST dataset.  
+
 <img src="./readme_assets/real_images.png" width="500px"></img>
 
 ### Known issues
