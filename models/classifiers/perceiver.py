@@ -45,7 +45,7 @@ class Perceiver(nn.Module):
             transformer_depth: int = 2,
 
             attention_dropout: float = 0.0,
-            ff_hidden_dim: 512 = 512,
+            ff_hidden_dim: int = 512,
             ff_dropout: float = 0.0,
             activation: Optional[Callable] = None,
     ):

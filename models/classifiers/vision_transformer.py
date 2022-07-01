@@ -18,7 +18,7 @@ class VisionTransformer(nn.Module):
             image_size: int,
             patch_size: int,
             num_classes: int,
-            dim: int,
+            projection_dim: int,
             depth: int,
             heads: int,
             mlp_dim: int,
@@ -39,22 +39,22 @@ class VisionTransformer(nn.Module):
 
         self.to_patch_embedding = nn.Sequential(
             Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=patch_height, p2=patch_width),
-            nn.LazyLinear(dim),
+            nn.LazyLinear(projection_dim),
         )
 
-        self.pos_embedding = nn.Parameter(torch.randn(1, num_patches + 1, dim))
-        self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
+        self.pos_embedding = nn.Parameter(torch.randn(1, num_patches + 1, projection_dim))
+        self.cls_token = nn.Parameter(torch.randn(1, 1, projection_dim))
         self.dropout = nn.Dropout(emb_dropout)
 
         self.transformer = TransformerEncoder(
-            dim, depth, heads, dim_head, mlp_dim, dropout, dropout, apply_rotary_emb
+            projection_dim, depth, heads, dim_head, mlp_dim, dropout, dropout, apply_rotary_emb
         )
 
         self.pool = pool
 
         self.mlp_head = nn.Sequential(
-            nn.LayerNorm(dim),
-            nn.Linear(dim, num_classes)
+            nn.LayerNorm(projection_dim),
+            nn.Linear(projection_dim, num_classes)
         )
 
     def forward(self, img: torch.Tensor):
@@ -79,7 +79,7 @@ def main():
         image_size=32,
         patch_size=8,
         num_classes=10,
-        dim=256,
+        projection_dim=256,
         depth=6,
         heads=8,
         mlp_dim=512,
