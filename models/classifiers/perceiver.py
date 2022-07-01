@@ -180,7 +180,7 @@ def main():
         model,
     )
 
-    dataset_train, dataset_test = get_mnist_dataset()
+    dataset_train, dataset_test = get_cifar10_dataset()
     train_model(model, dataset_train, dataset_test, batch_size=128)
 
 

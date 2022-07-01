@@ -15,7 +15,6 @@ class VisionPerceiver(nn.Module):
     def __init__(
             self,
             *,
-            image_size: int,
             patch_size: int,
             projection_dim: int,
 
@@ -48,19 +47,14 @@ class VisionPerceiver(nn.Module):
             activation: Optional[Callable] = None,
     ):
         super().__init__()
-        image_height, image_width = image_size, image_size
         patch_height, patch_width = patch_size, patch_size
 
         self.patch_height, self.patch_width = patch_height, patch_width
-
-        assert image_height % patch_height == 0 and image_width % patch_width == 0, \
-            'Image dimensions must be divisible by the patch size.'
 
         # Create fourier encoder
         self.pos_encoder = FourierEmbedding(max_freq, num_freq_bands, constant_mapping, max_position) \
             if apply_fourier_encoding else nn.Identity()
 
-        self.to_patches = Rearrange('b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=patch_height, p2=patch_width)
         self.to_projection = nn.LazyLinear(projection_dim)
 
         # build perceiver
@@ -97,15 +91,10 @@ class VisionPerceiver(nn.Module):
 
 def main():
     model = VisionPerceiver(
-        image_size=28,
         patch_size=4,
-        projection_dim=128,
+        projection_dim=1024,
         num_classes=10,
         apply_rotary_emb=True,
-        apply_fourier_encoding=True,
-        max_freq=10,
-        num_freq_bands=6,
-        constant_mapping=False,
         max_position=1600,
         num_layers=2,
         num_latents=16,
@@ -121,8 +110,8 @@ def main():
         activation=None,
     ).cuda()
 
-    train_dataset, test_dataset = get_mnist_dataset()
-    train_model(model, train_dataset, test_dataset, num_epochs=100)
+    train_dataset, test_dataset = get_cifar10_dataset()
+    train_model(model, train_dataset, test_dataset, batch_size=128)
 
 
 if __name__ == "__main__":
