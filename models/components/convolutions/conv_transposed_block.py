@@ -12,6 +12,8 @@ class ConvTransposedBlock(nn.Module):
             padding: int = 1,
             bias: bool = False
     ):
+        super(ConvTransposedBlock, self).__init__()
+
         self.sequential = nn.Sequential(
             nn.ConvTranspose2d(
                 in_channels=in_channels,

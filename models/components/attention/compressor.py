@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 from torch import nn
 
@@ -13,7 +15,7 @@ class Compressor(nn.Module):
             self,
             input_dim: int,
             output_len: int,
-            output_dim: int,
+            output_dim: Optional[int] = None,
             attn_heads: int = 8,
             attn_dim_head: int = 64,
             attn_dropout: float = 0.0,
@@ -33,6 +35,9 @@ class Compressor(nn.Module):
         """
 
         super(Compressor, self).__init__()
+
+        if output_dim is None:
+            output_dim = input_dim
 
         self.cross_attend = Attend(
             query_dim=input_dim,
