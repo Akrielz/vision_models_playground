@@ -6,7 +6,7 @@ from einops import rearrange
 from einops.layers.torch import Rearrange
 
 from models.classifiers.perceiver import Perceiver
-from models.components.position_embedding.fourrier_embedding import FourierEmbedding
+from models.components.position_embedding.fourier_embedding import FourierEmbedding
 from utility.datasets import get_mnist_dataset, get_cifar10_dataset
 from utility.train_models import train_model
 

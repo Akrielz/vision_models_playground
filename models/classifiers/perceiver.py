@@ -9,7 +9,7 @@ from models.components.activations.geglu import GEGLU
 from models.components.attention.attend import Attend
 from models.components.attention.feed_forward import FeedForward
 from models.components.attention.transformer_encoder import TransformerEncoder
-from models.components.position_embedding.fourrier_embedding import FourierEmbedding
+from models.components.position_embedding.fourier_embedding import FourierEmbedding
 from utility.datasets import get_cifar10_dataset, get_mnist_dataset
 from utility.train_models import train_model
 
