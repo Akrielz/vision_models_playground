@@ -10,8 +10,8 @@ class ConvEmbedding(nn.Module):
     def __init__(
             self,
             patch_size: int = 7,
-            dim_in: int = 3,
-            dim_out: int = 64,
+            in_channels: int = 3,
+            out_channels: int = 64,
             stride: int = 4,
             padding: int = 2,
             apply_norm: bool = True,
@@ -20,13 +20,13 @@ class ConvEmbedding(nn.Module):
         self.patch_size = patch_size
 
         self.proj = nn.Conv2d(
-            dim_in, dim_out,
+            in_channels, out_channels,
             kernel_size=patch_size,
             stride=stride,
             padding=padding
         )
 
-        self.norm = nn.LayerNorm(dim_out) if apply_norm else None
+        self.norm = nn.LayerNorm(out_channels) if apply_norm else None
 
     def forward(self, x):
         x = self.proj(x)
