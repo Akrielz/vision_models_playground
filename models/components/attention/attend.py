@@ -6,6 +6,7 @@ from torch import nn
 from models.components.attention.attention import Attention
 from models.components.attention.feed_forward import FeedForward
 from models.components.attention.pre_norm import PreNorm
+from models.components.dropout import DropPath
 
 
 class Attend(nn.Module):
@@ -19,7 +20,8 @@ class Attend(nn.Module):
             apply_rotary_emb: bool = False,
             ff_hidden_dim: int = 256,
             ff_dropout: float = 0.0,
-            activation: Callable = None
+            activation: Callable = None,
+            drop_path: float = 0.0,
     ):
         super(Attend, self).__init__()
 
@@ -46,6 +48,8 @@ class Attend(nn.Module):
             )
         )
 
+        self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
+
     def forward(
             self,
             queries: torch.Tensor,
@@ -53,7 +57,7 @@ class Attend(nn.Module):
             mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
 
-        x = self.attention(x=queries, context=context, mask=mask) + queries
-        x = self.mlp(x=x) + x
+        x = queries + self.drop_path(self.attention(x=queries, context=context, mask=mask))
+        x = x + self.drop_path(self.mlp(x=x))
 
         return x

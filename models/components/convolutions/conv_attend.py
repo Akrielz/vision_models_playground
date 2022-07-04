@@ -16,9 +16,9 @@ class ConvAttend(nn.Module):
             num_heads: int,
             dim_per_head: int,
             qkv_bias: bool = False,
-            drop: float = 0.,
-            attn_drop: float = 0.,
-            drop_path: float = 0.,
+            drop: float = 0.0,
+            attn_drop: float = 0.0,
+            drop_path: float = 0.0,
             activation: Optional[Callable] = None,
             ff_hidden_dim: int = 256,
             **kwargs
@@ -53,6 +53,8 @@ class ConvAttend(nn.Module):
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
 
     def forward(self, x):
+
         x = x + self.drop_path(self.attention(x))
         x = x + self.drop_path(self.mlp(x))
+
         return x
