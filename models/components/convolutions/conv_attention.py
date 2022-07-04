@@ -16,7 +16,7 @@ class ConvAttention(nn.Module):
             dim_per_head: int = 64,
             qkv_bias: bool = False,
             attn_drop: float = 0.0,
-            proj_drop: float = 0.0,
+            output_drop: float = 0.0,
             kernel_size: int = 3,
             stride_kv: int = 1,
             stride_q: int = 1,
@@ -49,7 +49,7 @@ class ConvAttention(nn.Module):
 
         self.attn_drop = nn.Dropout(attn_drop)
         self.proj = nn.Linear(self.inner_dim, out_channels)
-        self.proj_drop = nn.Dropout(proj_drop)
+        self.proj_drop = nn.Dropout(output_drop)
 
     def forward(self, x):
         # Get query, key and value
