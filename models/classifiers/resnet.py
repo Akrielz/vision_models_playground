@@ -87,7 +87,7 @@ class ResNet(nn.Module):
         return out
 
 
-def build_resnet18(num_classes: int = 10, in_channels: int = 3):
+def build_resnet_18(num_classes: int = 10, in_channels: int = 3):
     return ResNet(
         num_classes=num_classes,
         in_channels=in_channels,
@@ -97,7 +97,7 @@ def build_resnet18(num_classes: int = 10, in_channels: int = 3):
     )
 
 
-def build_resnet34(num_classes: int = 10, in_channels: int = 3):
+def build_resnet_34(num_classes: int = 10, in_channels: int = 3):
     return ResNet(
         num_classes=num_classes,
         in_channels=in_channels,
@@ -107,7 +107,7 @@ def build_resnet34(num_classes: int = 10, in_channels: int = 3):
     )
 
 
-def build_resnet50(num_classes: int = 10, in_channels: int = 3):
+def build_resnet_50(num_classes: int = 10, in_channels: int = 3):
     return ResNet(
         num_classes=num_classes,
         in_channels=in_channels,
@@ -117,7 +117,7 @@ def build_resnet50(num_classes: int = 10, in_channels: int = 3):
     )
 
 
-def build_resnet101(num_classes: int = 10, in_channels: int = 3):
+def build_resnet_101(num_classes: int = 10, in_channels: int = 3):
     return ResNet(
         num_classes=num_classes,
         in_channels=in_channels,
@@ -127,7 +127,7 @@ def build_resnet101(num_classes: int = 10, in_channels: int = 3):
     )
 
 
-def build_resnet152(num_classes: int = 10, in_channels: int = 3):
+def build_resnet_152(num_classes: int = 10, in_channels: int = 3):
     return ResNet(
         num_classes=num_classes,
         in_channels=in_channels,
@@ -138,7 +138,7 @@ def build_resnet152(num_classes: int = 10, in_channels: int = 3):
 
 
 def main():
-    model = build_resnet50().cuda()
+    model = build_resnet_50().cuda()
 
     dataset_train, dataset_test = get_cifar10_dataset()
     train_model(model, dataset_train, dataset_test)
