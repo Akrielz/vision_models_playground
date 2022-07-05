@@ -20,9 +20,9 @@ class ConvTransformer(nn.Module):
             num_heads: int = 8,
             ff_hidden_dim: int = 2048,
             qkv_bias: bool = False,
-            drop_rate: float = 0.,
-            attn_drop_rate: float = 0.,
-            drop_path_rate: float = 0.,
+            drop_rate: float = 0.0,
+            attn_drop_rate: float = 0.0,
+            drop_path_rate: float = 0.0,
             activation: Optional[Callable] = None,
             **kwargs
     ):
@@ -77,9 +77,11 @@ def main():
     conv_transformer = ConvTransformer(
         patch_size=4,
         patch_stride=4,
+        patch_padding=0,
         in_channels=3,
-        embedding_dim=64,
+        embedding_dim=32,
         num_heads=8,
+        ff_hidden_dim=256,
     )
 
     x = torch.randn(1, 3, 64, 64)
