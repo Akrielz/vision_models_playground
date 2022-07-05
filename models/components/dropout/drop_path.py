@@ -35,7 +35,7 @@ class DropPath(nn.Module):
         batch_size = x.shape[0]
         num_dim = x.dim()
         shape = [batch_size] + [1] * (num_dim - 1)  # create [B, 1, 1, ..., 1]
-        random_tensor = torch.zeros(shape, dtype=x.dtype).bernoulli_(keep_prob)
+        random_tensor = torch.zeros(shape, dtype=x.dtype).to(x.device).bernoulli_(keep_prob)
 
         # Scale the not dropped paths by the average number of paths dropped
         if self.scale_by_keep:

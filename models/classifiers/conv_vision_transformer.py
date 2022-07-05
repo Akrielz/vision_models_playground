@@ -3,10 +3,12 @@ from typing import Callable, List, Literal
 import torch
 from einops.layers.torch import Reduce, Rearrange
 from torch import nn
-import torch.nn.functional as F
 
 from models.components import QuickGELU
 from models.components.convolutions.conv_transformer import ConvTransformer
+from utility.datasets import get_cifar10_dataset
+from utility.functions import get_number_of_parameters
+from utility.train_models import train_model
 
 
 class ConvVisionTransformer(nn.Module):
@@ -173,8 +175,30 @@ def build_cvt_w24(num_classes: int = 10, in_channels: int = 3):
 
 
 if __name__ == '__main__':
-    model = build_cvt_13()
+    model = ConvVisionTransformer(
+        in_channels=3,
+        num_classes=10,
+        patch_size=[7, 3],
+        patch_stride=[4, 2],
+        patch_padding=[2, 1],
+        embedding_dim=[64, 192],
+        depth=[2, 8],
+        num_heads=[1, 3],
+        ff_hidden_dim=[256, 768],
+        qkv_bias=[True, True],
+        drop_rate=[0.0, 0.0],
+        attn_drop_rate=[0.0, 0.0],
+        drop_path_rate=[0.0, 0.1],
+        kernel_size=[3, 3],
+        stride_kv=[2, 2],
+        stride_q=[1, 1],
+        padding_kv=[1, 1],
+        padding_q=[1, 1],
+        method=['conv', 'conv'],
+    ).cuda()
 
-    x = torch.randn(1, 3, 224, 224)
-    y = model(x)
-    print(y.shape)
+    # print number of params of the model
+    print(f"Number of params: {get_number_of_parameters(model) / (1024 ** 2):.3f} M")
+
+    dataset_train, dataset_test = get_cifar10_dataset()
+    train_model(model, dataset_train, dataset_test)
