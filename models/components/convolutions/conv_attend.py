@@ -1,5 +1,7 @@
 from typing import Optional, Callable
 
+import torch
+from einops import rearrange
 from torch import nn
 
 from models.components import PreNorm, FeedForward
@@ -11,8 +13,8 @@ class ConvAttend(nn.Module):
 
     def __init__(
             self,
-            dim_in: int,
-            dim_out: int,
+            in_channels: int,
+            out_channels: int,
             num_heads: int,
             dim_per_head: int,
             qkv_bias: bool = False,
@@ -25,36 +27,64 @@ class ConvAttend(nn.Module):
     ):
         super().__init__()
 
-        self.attention = PreNorm(
-            dim=dim_in,
-            fn=ConvAttention(
-                in_channels=dim_in,
-                out_channels=dim_out,
-                num_heads=num_heads,
-                dim_per_head=dim_per_head,
-                qkv_bias=qkv_bias,
-                attn_drop=attn_drop,
-                output_drop=drop,
-                **kwargs
-            )
+        self.norm = nn.LayerNorm(in_channels)
+
+        self.attention = ConvAttention(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            num_heads=num_heads,
+            dim_per_head=dim_per_head,
+            qkv_bias=qkv_bias,
+            attn_drop=attn_drop,
+            output_drop=drop,
+            **kwargs
         )
 
         self.mlp = PreNorm(
-            dim=dim_out,
+            dim=out_channels,
             fn=FeedForward(
-                dim=dim_out,
+                dim=out_channels,
                 hidden_dim=ff_hidden_dim,
                 dropout=drop,
                 activation=activation,
-                output_dim=dim_out
+                output_dim=out_channels
             )
         )
 
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
 
-    def forward(self, x):
+        self.identity_reshape = nn.Identity() if in_channels == out_channels \
+            else nn.Linear(in_channels, out_channels, bias=False)
 
-        x = x + self.drop_path(self.attention(x))
+    def forward(self, x):
+        b, c, h, w = x.shape
+
+        x = rearrange(x, "b c h w -> b (h w) c")
+        res = x
+        x = self.norm(x)
+        x = rearrange(x, "b (h w) c -> b c h w", h=h)
+
+        x = self.identity_reshape(res) + self.drop_path(self.attention(x))
         x = x + self.drop_path(self.mlp(x))
 
         return x
+
+
+def main():
+    block = ConvAttend(
+        in_channels=64,
+        out_channels=128,
+        num_heads=4,
+        dim_per_head=32,
+        qkv_bias=False,
+        ff_hidden_dim=256,
+    )
+
+    x = torch.randn(1, 64, 32, 32)
+    out = block(x)
+
+    print(out.shape)
+
+
+if __name__ == "__main__":
+    main()
