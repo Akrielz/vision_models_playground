@@ -31,11 +31,11 @@ class ConvEmbedding(nn.Module):
     def forward(self, x):
         x = self.proj(x)
 
-        B, C, H, W = x.shape
+        b, c, h, w = x.shape
 
         if self.norm is not None:
             x = rearrange(x, 'b c h w -> b (h w) c')
             x = self.norm(x)
-            x = rearrange(x, 'b (h w) c -> b c h w', h=H, w=W)
+            x = rearrange(x, 'b (h w) c -> b c h w', h=h, w=w)
 
         return x

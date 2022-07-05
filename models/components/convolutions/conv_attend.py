@@ -23,9 +23,12 @@ class ConvAttend(nn.Module):
             drop_path: float = 0.0,
             activation: Optional[Callable] = None,
             ff_hidden_dim: int = 256,
+            output_2d: bool = False,
             **kwargs
     ):
         super().__init__()
+
+        self.output_2d = output_2d
 
         self.norm = nn.LayerNorm(in_channels)
 
@@ -66,6 +69,9 @@ class ConvAttend(nn.Module):
 
         x = self.identity_reshape(res) + self.drop_path(self.attention(x))
         x = x + self.drop_path(self.mlp(x))
+
+        if self.output_2d:
+            x = rearrange(x, "b (h w) c -> b c h w", h=h)
 
         return x
 
