@@ -10,10 +10,10 @@ class ConvProjection(nn.Module):
             self,
             in_channels: int,
             out_channels: int,
-            kernel_size: int,
-            padding: int,
-            stride: int,
-            method: Literal['conv', 'avg', 'linear'],
+            kernel_size: int = 3,
+            padding: int = 1,
+            stride: int = 1,
+            method: Literal['conv', 'avg', 'linear'] = 'conv',
             bias: bool = False,
     ):
         super().__init__()
