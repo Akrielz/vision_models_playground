@@ -3,6 +3,14 @@ from torch import nn
 
 
 class QuickGELU(nn.Module):
+    """
+    This is a quick GELU implementation that is faster than the official
+    implementation.
+
+    This implementation is based on the following paper:
+    https://arxiv.org/abs/1606.08415
+    """
+
     def forward(self, x: torch.Tensor):
         return x * torch.sigmoid(1.702 * x)
 
