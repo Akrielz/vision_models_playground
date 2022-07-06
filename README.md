@@ -662,5 +662,5 @@ The padding of the convolutional layers, used in the projection of the Queries.
 - `method`: List[Literal['conv', 'avg', 'linear']].  
 The method of computing the projections of the Keys, Values and Queries.  
 `conv` stand for convolutional normalized layer, followed by linear projection  
-`avg` stands for average layer, followed by linear projection  
+`avg` stands for average pool layer, followed by linear projection  
 `linear` stands for linear projection.
