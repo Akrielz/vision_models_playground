@@ -643,7 +643,7 @@ The DropPath rate that is applied inside each Attend block for the residual
 connections is computed dynamically based on the depth of the Vision Transformer.
 
 
-- `kernel_size`: List[int].
+- `kernel_size`: List[int].  
 The kernel size of the convolutional layers, per each Vision Transformer layer.
 
 
