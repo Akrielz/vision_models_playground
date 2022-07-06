@@ -4,11 +4,11 @@
 
 - [Description](#description)
 - [ResNet](#resnet)
-- [Vision Transformer](#vision-transformer)
+- [Vision Transformer](#vision-transformer-vit)
 - [Generative Adversarial Networks](#generative-adversarial-networks-gan)
 - [Perceiver](#perceiver)
-- [Vision Perceiver](#vision-perceiver)
-- [Convolutional Vision Transformer](#convolutional-vision-transformer)
+- [Vision Perceiver](#vision-perceiver-vip)
+- [Convolutional Vision Transformer](#convolutional-vision-transformer-cvt)
 
 ## Description
 
@@ -89,7 +89,7 @@ There are two pre-implemented block types: ResidualBlock and BottleneckBlock.
 Can be replaced with any custom block that has the following params in the constructor:
 `in_channels`, `out_channels`, `stride`.
 
-## Vision Transformer
+## Vision Transformer (ViT)
 
 A classifier based on the [Vision Transformer](https://openreview.net/pdf?id=YicbFdNTTy) 
 architecture.
@@ -386,7 +386,7 @@ Activation function to be used in the feed forward blocks.
 If left as None, GEGLU is used.
 
 
-## Vision Perceiver
+## Vision Perceiver (ViP)
 
 A classifier based on the [Perceiver](https://arxiv.org/abs/2103.03206) architecture, 
 but adapted to work with the technique of the 
@@ -513,7 +513,7 @@ Activation function to be used in the feed forward blocks.
 If left as None, GEGLU is used.
 
 
-## Convolutional Vision Transformer
+## Convolutional Vision Transformer (CvT)
 
 A classifier based on the 
 [Convolutional Vision Transformer](https://arxiv.org/abs/2103.15808) 
