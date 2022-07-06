@@ -296,7 +296,7 @@ preds = model(img)  # (1, 1000)
 Number of channels of the input.
 
 
-- `input_axis`: int.
+- `input_axis`: int.  
 Number of axis of the input.  
 If the input is a sequence, the input_axis is 1  
 If the input is an image, the input_axis is 2.  
@@ -328,7 +328,7 @@ Maximum frequency to be used in fourier_encoding.
 Number of frequency bands to be used in fourier_encoding.
 
 
-- `constant_mapping`: bool, default `False`.  
+- `constant_mapping`: bool.
 If enabled, uses a constant mapping for the axis of the fourier_encoding.
 
 
@@ -381,7 +381,7 @@ Dimension of the hidden layers in the feed forward blocks
 Dropout probability for the feed forward layers
 
 
-- `activation`: callable.  
+- `activation`: Callable.  
 Activation function to be used in the feed forward blocks.  
 If left as None, GEGLU is used.
 
