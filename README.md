@@ -584,11 +584,12 @@ Number of classes to classify.
 
 
 - `activation`: callable.  
-Activation function to be used in the feed forward blocks.
+Activation function to be used in the feed forward blocks.  
+If left as None, QuickGELU is used.
 
 
 - `final_classifier_head`: bool.  
-If enabled, uses a final classifier head.
+If enabled, uses a final classifier head.  
 If disabled, returns the image features.
 
 
