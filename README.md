@@ -33,11 +33,11 @@ Code example to initialize and use prebuild ResNet34
 
 ```python
 import torch
-from models.classifiers.resnet import build_resnet34
+from models.classifiers.resnet import build_resnet_34
 
-model = build_resnet34(num_classes=10, in_channels=3)
+model = build_resnet_34(num_classes=10, in_channels=3)
 
-img = torch.randn(1, 3, 300, 300)  # <batch_size, in_channels, height, width>
+img = torch.randn(1, 3, 256, 256)  # <batch_size, in_channels, height, width>
 preds = model(img)  # (1, 10) <batch_size, num_classes>
 ```
 
@@ -55,7 +55,7 @@ model = ResNet(
     block=ResidualBlock
 )
 
-img = torch.randn(1, 3, 300, 300)  # <batch_size, in_channels, height, width>
+img = torch.randn(1, 3, 256, 256)  # <batch_size, in_channels, height, width>
 preds = model(img)  # (1, 10) <batch_size, num_classes>
 ```
 
@@ -103,7 +103,7 @@ model = VisionTransformer(
     image_size=256,
     patch_size=32,
     num_classes=1000,
-    dim=1024,
+    projection_dim=1024,
     depth=6,
     heads=16,
     mlp_dim=2048,
@@ -131,7 +131,7 @@ The number of patches is: ` n = (image_size // patch_size) ** 2` and `n` **must 
 Number of classes to classify.
 
 
-- `dim`: int.  
+- `projection_dim`: int.  
 Last dimension of output tensor after linear transformation `nn.Linear(..., dim)`.
 
 
@@ -244,3 +244,423 @@ For reference, this is a sample of the original MNIST dataset.
 
 At this moment, the gan is coded to operate only on CUDA devices.
 In future the code will be refactored to allow the use of CPU devices too.
+
+## Perceiver
+
+A classifier based on the [Perceiver](https://arxiv.org/abs/2103.03206) 
+architecture.
+
+### Usage
+
+Code example to initialize and use Perceiver
+
+```python
+import torch
+from models.classifiers.perceiver import Perceiver
+
+model = Perceiver(
+    input_dim=3,
+    input_axis=2,
+    final_classifier_head=True,
+    num_classes=1000,
+    apply_rotary_emb=True,
+    apply_fourier_encoding=True,
+    max_freq=10,
+    num_freq_bands=6,
+    constant_mapping=False,
+    max_position=1600,
+    num_layers=4,
+    num_latents=16,
+    latent_dim=32,
+    cross_num_heads=4,
+    cross_head_dim=32,
+    self_attend_heads=4,
+    self_attend_dim=32,
+    transformer_depth=2,
+    attention_dropout=0.,
+    ff_hidden_dim=64,
+    ff_dropout=0.,
+    activation=None,
+)
+
+img = torch.randn(1, 256, 256, 3)
+preds = model(img)  # (1, 1000)
+```
+
+### Parameters
+
+- `input_dim`: int.  
+Number of channels of the input.
+
+
+- `input_axis`: int.
+Number of axis of the input.  
+If the input is a sequence, the input_axis is 1  
+If the input is an image, the input_axis is 2.  
+If the input is a video, the input_axis is 3.  
+
+
+- `final_classifier_head`: bool.  
+If enabled, the final classifier head is applied, and logits are returned.  
+If disabled, the final classifier head is not applied, and latents are returned.
+
+
+- `num_classes`: int.  
+Number of classes to classify.
+
+
+- `apply_rotary_emb`: bool.  
+If enabled, applies rotary_embedding in Attention blocks.
+
+
+- `apply_fourier_encoding`: bool.  
+If enabled, applies fourier_encoding over the input
+
+
+- `max_freq`: int.  
+Maximum frequency to be used in fourier_encoding.
+
+
+- `num_freq_bands`: int.  
+Number of frequency bands to be used in fourier_encoding.
+
+
+- `constant_mapping`: bool, default `False`.  
+If enabled, uses a constant mapping for the axis of the fourier_encoding.
+
+
+- `max_position`: int.  
+Maximum position to be used in the positional fourier encoding.  
+Works only if `constant_mapping` is enabled.
+
+
+- `num_layers`: int.  
+Number of layers
+
+
+- `num_latents`: int.  
+Number of latents
+
+
+- `latent_dim`: int.  
+Dimension of the latent vector
+
+
+- `cross_num_heads`: int.  
+Number of heads in the cross attention blocks
+
+
+- `cross_head_dim`: int.  
+Dimension of the heads in the cross attention blocks
+
+
+- `self_attend_heads`: int.  
+Number of heads in the self attention blocks
+
+
+- `self_attend_dim`: int.  
+Dimension of the heads in the self attention blocks
+
+
+- `transformer_depth`: int.  
+Number of layers in the transformer
+
+
+- `attention_dropout`: float.  
+Dropout probability for the attention layers
+
+
+- `ff_hidden_dim`: int.  
+Dimension of the hidden layers in the feed forward blocks
+
+
+- `ff_dropout`: float.  
+Dropout probability for the feed forward layers
+
+
+- `activation`: callable.  
+Activation function to be used in the feed forward blocks.  
+If left as None, GEGLU is used.
+
+
+## Vision Perceiver
+
+A classifier based on the [Perceiver](https://arxiv.org/abs/2103.03206) architecture, 
+but adapted to work with the technique of the 
+[Vision Transformer](https://openreview.net/pdf?id=YicbFdNTTy) by splitting the
+image into patches, and projecting them into a sequence.
+
+### Usage
+
+Code example to initialize and use Vision Perceiver
+
+```python
+import torch
+from models.classifiers.vision_perceiver import VisionPerceiver
+
+model = VisionPerceiver(
+    patch_size=4,
+    projection_dim=1024,
+    num_classes=1000,
+    apply_rotary_emb=True,
+    max_position=1600,
+    num_layers=2,
+    num_latents=16,
+    latent_dim=32,
+    cross_num_heads=8,
+    cross_head_dim=64,
+    self_attend_heads=8,
+    self_attend_dim=64,
+    transformer_depth=2,
+    attention_dropout=0.0,
+    ff_hidden_dim=512,
+    ff_dropout=0.0,
+    activation=None,
+)
+
+img = torch.randn(1, 256, 256, 3)
+preds = model(img)  # (1, 1000)
+```
+
+### Parameters
+
+- `patch_size`: int.  
+Size of the patches the image is split into.
+
+
+- `projection_dim`: int.  
+Dimension of the projection layer.
+
+
+- `num_classes`: int.  
+Number of classes to classify.
+
+
+- `apply_rotary_emb`: bool.  
+If enabled, applies rotary_embedding in Attention blocks.
+
+
+- `apply_fourier_encoding`: bool.  
+If enabled, applies fourier_encoding over the input
+
+
+- `max_freq`: int.  
+Maximum frequency to be used in fourier_encoding.
+
+
+- `num_freq_bands`: int.  
+Number of frequency bands to be used in fourier_encoding.
+
+
+- `constant_mapping`: bool, default `False`.  
+If enabled, uses a constant mapping for the axis of the fourier_encoding.
+
+
+- `max_position`: int.  
+Maximum position to be used in the positional fourier encoding.  
+Works only if `constant_mapping` is enabled.
+
+
+- `num_layers`: int.  
+Number of layers
+
+
+- `num_latents`: int.  
+Number of latents
+
+
+- `latent_dim`: int.  
+Dimension of the latent vector
+
+
+- `cross_num_heads`: int.  
+Number of heads in the cross attention blocks
+
+
+- `cross_head_dim`: int.  
+Dimension of the heads in the cross attention blocks
+
+
+- `self_attend_heads`: int.  
+Number of heads in the self attention blocks
+
+
+- `self_attend_dim`: int.  
+Dimension of the heads in the self attention blocks
+
+
+- `transformer_depth`: int.  
+Number of layers in the transformer
+
+
+- `attention_dropout`: float.  
+Dropout probability for the attention layers
+
+
+- `ff_hidden_dim`: int.  
+Dimension of the hidden layers in the feed forward blocks
+
+
+- `ff_dropout`: float.  
+Dropout probability for the feed forward layers
+
+
+- `activation`: callable.  
+Activation function to be used in the feed forward blocks.  
+If left as None, GEGLU is used.
+
+
+## Convolutional Vision Transformer
+
+A classifier based on the 
+[Convolutional Vision Transformer](https://arxiv.org/abs/2103.15808) 
+architecture.
+
+### Usage
+
+Models can be initialized with pre-build or custom versions.
+
+Pre-build models:
+
+- CvT13
+- CvT21
+- CvTW24
+
+Code example to initialize and use prebuild CvT13
+
+```python
+import torch
+from models.classifiers.conv_vision_transformer import build_cvt_13
+
+model = build_cvt_13(num_classes=1000, in_channels=3)
+
+img = torch.randn(1, 256, 256, 3)
+preds = model(img)  # (1, 1000)
+```
+
+Code example to initialize CvT13 using the custom Convolutional Vision Transformer
+
+```python
+import torch
+from models.classifiers.conv_vision_transformer import ConvVisionTransformer
+
+model = ConvVisionTransformer(
+    in_channels=3,
+    num_classes=1000,
+    patch_size=[7, 3, 3],
+    patch_stride=[4, 2, 2],
+    patch_padding=[2, 1, 1],
+    embedding_dim=[64, 192, 384],
+    depth=[1, 2, 10],
+    num_heads=[1, 3, 6],
+    ff_hidden_dim=[256, 768, 1536],
+    qkv_bias=[True, True, True],
+    drop_rate=[0.0, 0.0, 0.0],
+    attn_drop_rate=[0.0, 0.0, 0.0],
+    drop_path_rate=[0.0, 0.0, 0.1],
+    kernel_size=[3, 3, 3],
+    stride_kv=[2, 2, 2],
+    stride_q=[1, 1, 1],
+    padding_kv=[1, 1, 1],
+    padding_q=[1, 1, 1],
+    method=['conv', 'conv', 'conv'],
+)
+
+img = torch.randn(1, 256, 256, 3)
+preds = model(img)  # (1, 1000)
+```
+
+### Parameters
+
+- `in_channels`: int.  
+Number of input channels.
+
+
+- `num_classes`: int.  
+Number of classes to classify.
+
+
+- `activation`: callable.  
+Activation function to be used in the feed forward blocks.
+
+
+- `final_classifier_head`: bool.  
+If enabled, uses a final classifier head.
+If disabled, returns the image features.
+
+
+- `patch_size`: List[int].  
+Size of the patches the image is split into, per each Vision Transformer layer.
+The patches can overlap
+
+
+- `patch_stride`: List[int].  
+Stride of the patches, per each Vision Transformer layer.
+
+
+- `patch_padding`: List[int].  
+Padding of the patches, per each Vision Transformer layer.
+
+
+- `embedding_dim`: List[int].  
+Dimension of the embedding layers, per each Vision Transformer layer.
+
+
+- `depth`: List[int].  
+The depth of each Vision Transformer layer.
+
+
+- `num_heads`: List[int].  
+The number of heads in each Attention block, per each Vision Transformer layer.
+
+
+- `ff_hidden_dim`: List[int].  
+Dimension of the hidden layers in the feed forward blocks, 
+per each Vision Transformer layer.
+
+
+- `qkv_bias`: List[bool].  
+If enabled, adds a bias to the query, key and value vectors,
+per each Vision Transformer layer.
+
+
+- `drop_rate`: List[float].  
+The dropout rate for the dropout layers in the Vision Transformer, 
+Feed Forward and the output of the Attention layers.
+
+
+- `attn_drop_rate`: List[float].  
+The dropout rate for the dropout layers in the Attention layers.
+
+
+- `drop_path_rate`: List[float].  
+The DropPath rate for the DropPath layers, per each Vision Transformer.  
+The DropPath rate that is applied inside each Attend block for the residual
+connections is computed dynamically based on the depth of the Vision Transformer.
+
+
+- `kernel_size`: List[int].
+The kernel size of the convolutional layers, per each Vision Transformer layer.
+
+
+- `stride_kv`: List[int].  
+The stride of the convolutional layers, used in the projection of the Keys and Values.
+
+
+- `stride_q`: List[int].  
+The stride of the convolutional layers, used in the projection of the Queries.
+
+
+- `padding_kv`: List[int].  
+The padding of the convolutional layers, used in the projection of the Keys and Values.
+
+
+- `padding_q`: List[int].  
+The padding of the convolutional layers, used in the projection of the Queries.
+
+
+- `method`: List[Literal['conv', 'avg', 'linear']].  
+The method of computing the projections of the Keys, Values and Queries.  
+`conv` stand for convolutional normalized layer, followed by linear projection  
+`avg` stands for average layer, followed by linear projection  
+`linear` stands for linear projection.
