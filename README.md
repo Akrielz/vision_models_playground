@@ -4,8 +4,11 @@
 
 - [Description](#description)
 - [ResNet](#resnet)
-- [VisionTransformer](#visiontransformer)
+- [Vision Transformer](#vision-transformer)
 - [Generative Adversarial Networks](#generative-adversarial-networks-gan)
+- [Perceiver](#perceiver)
+- [Vision Perceiver](#vision-perceiver)
+- [Convolutional Vision Transformer](#convolutional-vision-transformer)
 
 ## Description
 
