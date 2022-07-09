@@ -40,8 +40,8 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
     all_imports = ""
     # Iterate over all the files
     for file in files:
-        # Skip files starting with "__"
-        if file.startswith("__"):
+        # Skip files starting with "_"
+        if file.startswith("_"):
             continue
 
         # Get the path of the file
@@ -81,6 +81,7 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
     open_mode = "w"
     if append:
         open_mode = "a"
+
     with open(os.path.join(dir_path, "__init__.py"), open_mode) as f:
         f.write(all_imports)
 
