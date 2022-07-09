@@ -7,6 +7,7 @@ def create_imports_for_all_sub_dirs(dir_path: str):
     for root, dirs, files in os.walk(dir_path):
         path = root.split(os.sep)
 
+        # Check if the path contains a private directory
         private = False
         for path_component in path:
             if path_component.startswith("_"):
@@ -16,11 +17,14 @@ def create_imports_for_all_sub_dirs(dir_path: str):
         if private:
             continue
 
+        # Check if the current directory does not contain any public dir
+        # Aka if it is leaf
         public_dirs = [dir for dir in dirs if not dir.startswith("_")]
 
         if len(public_dirs):
             continue
 
+        # Create imports for the current directory
         create_imports_classes_and_functions(root)
 
 
