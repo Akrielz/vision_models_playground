@@ -2,7 +2,34 @@ import os
 import re
 
 
-def create_import_shortcuts(dir_path: str):
+def create_imports_for_all_sub_dirs(dir_path: str):
+    # walk in all the sub directories
+    for root, dirs, files in os.walk(dir_path):
+        path = root.split(os.sep)
+
+        private = False
+        for path_component in path:
+            if path_component.startswith("_"):
+                private = True
+                break
+
+        if private:
+            continue
+
+        public_dirs = [dir for dir in dirs if not dir.startswith("_")]
+
+        if len(public_dirs):
+            continue
+
+        create_imports_classes_and_functions(root)
+
+
+def create_imports_classes_and_functions(dir_path: str):
+    create_import_shortcuts(dir_path, keyword='class', append=False)
+    create_import_shortcuts(dir_path, keyword='def', append=True)
+
+
+def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool = True):
     # Get a list with all the files in the directory
     files = os.listdir(dir_path)
 
@@ -21,13 +48,20 @@ def create_import_shortcuts(dir_path: str):
             # Get the contents of the file
             contents = f.read()
 
-        # Identify all class name by the rule: class <class_name>(<parent_class_name>):
-        # or by the rule: class <class_name>:
-        class_names = re.findall(r'class\s+([a-zA-Z0-9_]+)[\s\(:]', contents)
+        # Identify all keyword name by the rule: "keyword <class_name>(<parent_class_name>):"
+        # or by the rule: "keyword <class_name>:", given that there is no spaces/tabs before the class keyword
+        class_names = re.findall(keyword + r'\s+([a-zA-Z0-9_]+)', contents)
 
         # Iterate over all the class names
         for class_name in class_names:
             if class_name.startswith("_"):
+                continue
+
+            if class_name == "main":
+                continue
+
+            # check if there are tabs or spaces before the class keyword
+            if contents[contents.find(f"{keyword} " + class_name) - 1] in "\t ":
                 continue
 
             # Prepare to import the class name
@@ -36,11 +70,17 @@ def create_import_shortcuts(dir_path: str):
             # Append the import statement to the all imports string
             all_imports += import_string
 
+    # Print the all imports string
     print(all_imports)
+
     # Write the all imports string to the file "__init__.py"
-    with open(os.path.join(dir_path, "__init__.py"), 'w') as f:
+    open_mode = "w"
+    if append:
+        open_mode = "a"
+    with open(os.path.join(dir_path, "__init__.py"), open_mode) as f:
         f.write(all_imports)
 
 
 if __name__ == "__main__":
-    create_import_shortcuts(dir_path="components/convolutions")
+    create_imports_for_all_sub_dirs(dir_path="models/classifiers")
+    create_imports_for_all_sub_dirs(dir_path="components")

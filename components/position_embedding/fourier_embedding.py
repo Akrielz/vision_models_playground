@@ -6,7 +6,7 @@ from einops import rearrange, repeat
 from torch import nn
 
 
-def fourier_encode(x, max_freq, num_bands=4):
+def _fourier_encode(x, max_freq, num_bands=4):
     x = x.unsqueeze(-1)
     device, dtype, orig_x = x.device, x.dtype, x
 
@@ -102,7 +102,7 @@ class FourierEmbedding(nn.Module):
         pos = torch.stack(torch.meshgrid(*axis_pos, indexing='ij'), dim=-1)
 
         # Apply the fourier encoding to calculate the sines and cosines
-        enc_pos = fourier_encode(pos, self.max_freq, self.num_freq_bands)
+        enc_pos = _fourier_encode(pos, self.max_freq, self.num_freq_bands)
 
         # Reshape the content to be exactly same shape as input
         # (excepting last channel)
