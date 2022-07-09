@@ -14,56 +14,24 @@ class UpscaleBlock(nn.Module):
             conv_kernel_size: int = 3,
             conv_padding: int = 1,
             bilinear: bool = True,
-            crop: bool = False
     ):
         super().__init__()
 
-        self.upscale = nn.Sequential(
-            nn.Upsample(scale_factor=scale, mode='bilinear', align_corners=True),
-            nn.Conv2d(in_channels, in_channels // 2, kernel_size=scale+1, padding=scale-1)
-        ) if bilinear else \
-            nn.ConvTranspose2d(in_channels, in_channels // 2, kernel_size=scale, stride=scale)
+        upscale = nn.Upsample(scale_factor=scale, mode='bilinear', align_corners=True) if bilinear \
+            else nn.ConvTranspose2d(in_channels, in_channels, kernel_size=scale, stride=scale)
 
-        self.conv = DoubleConvBlock(in_channels, out_channels, kernel_size=conv_kernel_size, padding=conv_padding)
+        conv = DoubleConvBlock(in_channels, out_channels, kernel_size=conv_kernel_size, padding=conv_padding)
 
-        self.crop = crop
+        self.net = nn.Sequential(upscale, conv)
 
-    def forward(self, x1, x2):
-        # Upscale x1
-        x1 = self.upscale(x1)
-
-        # pad the first image to match the second shape
-        diff_y = x2.shape[2] - x1.shape[2]
-        left_y = diff_y // 2
-        right_y = diff_y - left_y
-
-        diff_x = x2.shape[3] - x1.shape[3]
-        left_x = diff_x // 2
-        right_x = diff_x - left_x
-
-        x1 = F.pad(
-            x1,
-            [left_y, right_y,
-             left_x, right_x]
-        )
-
-        # add the two images together
-        x = torch.cat([x1, x2], dim=1)
-
-        # pass the combined image through the convolutional layer
-        x = self.conv(x)
-
-        if self.crop:
-            x = x[:, :, left_y: -right_y, left_x: -right_x]
-
-        return x
+    def forward(self, x):
+        return self.net(x)
 
 
 def main():
-    block = UpscaleBlock(in_channels=1024, out_channels=512, scale=4, conv_kernel_size=3, conv_padding=1, bilinear=False, crop=True)
-    x1 = torch.randn(1, 1024, 28, 28)
-    x2 = torch.randn(1, 512, 128, 128)
-    print(block(x1, x2).shape)
+    block = UpscaleBlock(in_channels=16, out_channels=32, scale=2, conv_kernel_size=3, conv_padding=1, bilinear=False)
+    x = torch.randn(1, 16, 32, 32)
+    print(block(x).shape)
 
 
 if __name__ == "__main__":
