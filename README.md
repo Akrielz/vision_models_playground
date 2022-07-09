@@ -193,11 +193,11 @@ import torch
 
 from torchvision import datasets, transforms
 
-from models.generative.adverserial.gan import GAN
+from models.generative import GAN
 
 # Import custom Generator and Discriminator adequate to the problem
-from models.generative.adverserial.mnist_discriminator import Discriminator
-from models.generative.adverserial.mnist_generator import Generator 
+from models.generative import Discriminator
+from models.generative import Generator
 
 # Create GAN
 generator = Generator()

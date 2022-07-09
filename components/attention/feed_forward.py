@@ -3,8 +3,8 @@ from typing import Callable
 import torch
 from torch import nn
 
-from models.components.activations.geglu import GEGLU
-from models.components.activations.relu_squared import ReluSquared
+from components.activations.geglu import GEGLU
+from components.activations.relu_squared import ReluSquared
 
 
 class FeedForward(nn.Module):

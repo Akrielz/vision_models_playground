@@ -3,10 +3,10 @@ from typing import Optional, Callable
 import torch
 from torch import nn
 
-from models.components.attention.attention import Attention
-from models.components.attention.feed_forward import FeedForward
-from models.components.attention.pre_norm import PreNorm
-from models.components.dropout import DropPath
+from components.attention.attention import Attention
+from components.attention.feed_forward import FeedForward
+from components.attention.pre_norm import PreNorm
+from components.dropout import DropPath
 
 
 class Attend(nn.Module):

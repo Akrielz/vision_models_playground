@@ -3,7 +3,7 @@ from typing import Optional
 import torch
 from torch import nn
 
-from models.components.attention.attend import Attend
+from components.attention.attend import Attend
 
 
 class Compressor(nn.Module):
@@ -30,8 +30,8 @@ class Compressor(nn.Module):
             attn_heads: Number of attention heads.
             attn_dim_head: Dimension of the attention heads.
             attn_dropout: Dropout probability for the attention.
-            hidden_dim: Dimension of the hidden layers.
-            ff_dropout: Dropout probability for the feed-forward layers.
+            hidden_dim: Dimension of the hidden components.
+            ff_dropout: Dropout probability for the feed-forward components.
         """
 
         super(Compressor, self).__init__()

@@ -4,7 +4,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from models.components.convolutions.conv_block import ConvBlock
+from components.convolutions.conv_block import ConvBlock
 
 
 class BottleneckBlock(nn.Module):

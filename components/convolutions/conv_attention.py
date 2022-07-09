@@ -4,7 +4,7 @@ import torch
 from einops import rearrange
 from torch import nn, einsum
 
-from models.components.convolutions.conv_projection import ConvProjection
+from components.convolutions.conv_projection import ConvProjection
 
 
 class ConvAttention(nn.Module):
@@ -36,7 +36,7 @@ class ConvAttention(nn.Module):
         method_q = 'linear' if method == 'avg' else method
         method_kw = method
 
-        # Get convolution projections layers for query, key and value
+        # Get convolution projections components for query, key and value
         self.to_q = ConvProjection(
             in_channels, self.inner_dim, kernel_size, padding_q, stride_q, method_q, qkv_bias,
         )

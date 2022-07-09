@@ -6,8 +6,8 @@ from torch import nn
 from einops import repeat
 from einops.layers.torch import Rearrange
 
-from models.components.attention.transformer_encoder import TransformerEncoder
-from utility.datasets import get_mnist_dataset, get_cifar10_dataset
+from components import TransformerEncoder
+from utility.datasets import get_cifar10_dataset
 from utility.train_models import train_model
 
 

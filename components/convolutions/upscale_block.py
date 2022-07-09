@@ -3,7 +3,7 @@ from typing import Literal
 import torch
 from torch import nn
 
-from models.components.convolutions.double_conv_block import DoubleConvBlock
+from components.convolutions.double_conv_block import DoubleConvBlock
 
 
 class UpscaleBlock(nn.Module):
@@ -14,11 +14,11 @@ class UpscaleBlock(nn.Module):
             scale: int = 2,
             conv_kernel_size: int = 3,
             conv_padding: int = 1,
-            mode: Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "conv"] = "conv",
+            method: Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "conv"] = "conv",
     ):
         super().__init__()
 
-        upscale = nn.Upsample(scale_factor=scale, mode=mode, align_corners=True) if mode != "conv" \
+        upscale = nn.Upsample(scale_factor=scale, mode=method, align_corners=True) if method != "conv" \
             else nn.ConvTranspose2d(in_channels, in_channels, kernel_size=scale, stride=scale)
 
         conv = DoubleConvBlock(in_channels, out_channels, kernel_size=conv_kernel_size, padding=conv_padding)

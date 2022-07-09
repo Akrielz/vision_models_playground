@@ -3,8 +3,8 @@ from typing import Callable, Optional
 import torch
 from torch import nn
 
-from models.components.convolutions.conv_attend import ConvAttend
-from models.components.convolutions.conv_embedding import ConvEmbedding
+from components.convolutions.conv_attend import ConvAttend
+from components.convolutions.conv_embedding import ConvEmbedding
 
 
 class ConvTransformer(nn.Module):

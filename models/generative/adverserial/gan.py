@@ -4,8 +4,8 @@ from torch import nn
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 
-from models.generative.adverserial.mnist_discriminator import Discriminator
-from models.generative.adverserial.mnist_generator import Generator
+from models.generative import Discriminator
+from models.generative import Generator
 
 
 class GAN(nn.Module):

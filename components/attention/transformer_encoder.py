@@ -3,7 +3,7 @@ from typing import Optional, Callable
 import torch
 from torch import nn
 
-from models.components.attention.attend import Attend
+from components.attention.attend import Attend
 
 
 class TransformerEncoder(nn.Module):

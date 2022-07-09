@@ -4,8 +4,8 @@ import torch
 from einops.layers.torch import Reduce, Rearrange
 from torch import nn
 
-from models.components import QuickGELU
-from models.components.convolutions.conv_transformer import ConvTransformer
+from components import QuickGELU
+from components.convolutions.conv_transformer import ConvTransformer
 from utility.datasets import get_cifar10_dataset
 from utility.functions import get_number_of_parameters
 from utility.train_models import train_model

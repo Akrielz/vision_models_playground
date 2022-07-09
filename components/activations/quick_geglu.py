@@ -1,6 +1,6 @@
 from torch import nn
 
-from models.components import QuickGELU
+from components import QuickGELU
 
 
 class QuickGEGLU(nn.Module):

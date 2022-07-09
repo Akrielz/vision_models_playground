@@ -3,9 +3,9 @@ from typing import List, Optional, Type, Union
 from einops import rearrange
 from torch import nn
 
-from models.components.convolutions.conv_block import ConvBlock
-from models.components.convolutions.residual_block import ResidualBlock
-from models.components.convolutions.bottleneck_block import BottleneckBlock
+from components.convolutions.conv_block import ConvBlock
+from components import ResidualBlock
+from components.convolutions.bottleneck_block import BottleneckBlock
 from utility.datasets import get_cifar10_dataset
 from utility.train_models import train_model
 
@@ -35,7 +35,7 @@ class ResNet(nn.Module):
         self.num_layers = num_layers
         self.num_channels = num_channels
 
-        # build layers
+        # build components
         self.conv1 = ConvBlock(in_channels, num_channels[0], stride=2, kernel_size=7, padding=3)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 

@@ -4,9 +4,9 @@ import torch
 from einops import rearrange
 from torch import nn
 
-from models.components import PreNorm, FeedForward
-from models.components.convolutions.conv_attention import ConvAttention
-from models.components.dropout import DropPath
+from components import PreNorm, FeedForward
+from components.convolutions.conv_attention import ConvAttention
+from components.dropout import DropPath
 
 
 class ConvAttend(nn.Module):

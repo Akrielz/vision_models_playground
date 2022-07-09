@@ -5,12 +5,12 @@ from einops import rearrange, repeat
 from einops.layers.torch import Reduce, Rearrange
 from torch import nn
 
-from models.components.activations.geglu import GEGLU
-from models.components.attention.attend import Attend
-from models.components.attention.feed_forward import FeedForward
-from models.components.attention.transformer_encoder import TransformerEncoder
-from models.components.position_embedding.fourier_embedding import FourierEmbedding
-from utility.datasets import get_cifar10_dataset, get_mnist_dataset
+from components.activations.geglu import GEGLU
+from components.attention.attend import Attend
+from components import FeedForward
+from components import TransformerEncoder
+from components import FourierEmbedding
+from utility.datasets import get_cifar10_dataset
 from utility.train_models import train_model
 
 
@@ -95,7 +95,7 @@ class Perceiver(nn.Module):
                 apply_rotary_emb=apply_rotary_emb
             )
 
-        # Build layers
+        # Build components
         self.layers = nn.ModuleList([])
         for i in range(num_layers):
             layer = nn.ModuleList([])

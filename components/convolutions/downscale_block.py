@@ -3,7 +3,7 @@ from typing import Literal
 import torch
 from torch import nn
 
-from models.components.convolutions.double_conv_block import DoubleConvBlock
+from components.convolutions.double_conv_block import DoubleConvBlock
 
 
 class DownscaleBlock(nn.Module):

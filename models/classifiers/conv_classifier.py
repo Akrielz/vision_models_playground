@@ -22,7 +22,7 @@ class ConvolutionalClassifier(nn.Module):
         self.bn1 = nn.BatchNorm2d(32)
         self.bn2 = nn.BatchNorm2d(64)
 
-        # create two linear layers
+        # create two linear components
         self.fc1 = nn.LazyLinear(256)
         self.fc2 = nn.Linear(256, num_classes)
 
@@ -30,7 +30,7 @@ class ConvolutionalClassifier(nn.Module):
         self.dropout = nn.Dropout(0.2)
 
     def forward(self, x):
-        # pass the input through the convolutional layers
+        # pass the input through the convolutional components
         x = self.conv1(x)
         x = self.bn1(x)
         x = F.relu(x)
