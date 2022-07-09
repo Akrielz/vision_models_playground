@@ -60,9 +60,9 @@ class UpscaleConcatBlock(nn.Module):
 
 
 def main():
-    block = UpscaleBlock(in_channels=1024, out_channels=512, scale=4, conv_kernel_size=3, conv_padding=1, bilinear=False, crop=True)
+    block = UpscaleConcatBlock(in_channels=1024, out_channels=512, scale=2, conv_kernel_size=3, conv_padding=1, bilinear=False, crop=True)
     x1 = torch.randn(1, 1024, 28, 28)
-    x2 = torch.randn(1, 512, 128, 128)
+    x2 = torch.randn(1, 512, 64, 64)
     print(block(x1, x2).shape)
 
 
