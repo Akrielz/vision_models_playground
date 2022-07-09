@@ -34,36 +34,53 @@ def train_model(
 
     # train model
     for epoch in range(num_epochs):
-        progress_bar = tqdm(train_loader)
-        for i, (data, target) in enumerate(progress_bar):
-            data, target = data.cuda(), target.cuda()
-            output = model(data)
-            loss = F.cross_entropy(output, target)
+        __train_epoch(epoch, model, optimizer, print_every_x_steps, train_acc, train_loader)
 
-            # backward
-            loss.backward()
-
-            # update
-            optimizer.step()
-            optimizer.zero_grad()
-
-            train_acc.update(output, target)
-
-            if i % print_every_x_steps == 0:
-                description = Fore.CYAN + f"Epoch: {epoch}, Step: {i}, Loss: {loss.item():.4f}, Train Accuracy: {train_acc.compute():.4f}"
-                progress_bar.set_description_str(description, refresh=False)
-
-        # test model
         if test_loader is not None:
-            with torch.no_grad():
-                progress_bar = tqdm(test_loader)
-                for i, (data, target) in enumerate(progress_bar):
-                    data, target = data.cuda(), target.cuda()
-                    output = model(data)
-                    loss = F.cross_entropy(output, target)
+            __test_epoch(epoch, model, print_every_x_steps, test_acc, test_loader)
 
-                    test_acc.update(output, target)
 
-                    if i % print_every_x_steps == 0:
-                        description = Fore.YELLOW + f"Epoch: {epoch}, Step: {i}, Loss: {loss.item():.4f}, Test Accuracy: {test_acc.compute():.4f}"
-                        progress_bar.set_description_str(description, refresh=False)
+def __train_epoch(epoch, model, optimizer, print_every_x_steps, train_acc, train_loader):
+    progress_bar = tqdm(train_loader)
+    for i, (data, target) in enumerate(progress_bar):
+        # Forward
+        data, target = data.cuda(), target.cuda()
+        output = model(data)
+
+        # Compute loss
+        loss = F.cross_entropy(output, target)
+
+        # Backward
+        loss.backward()
+
+        # Update
+        optimizer.step()
+        optimizer.zero_grad()
+
+        # Update metrics
+        train_acc.update(output, target)
+
+        # Print progress
+        if i % print_every_x_steps == 0:
+            description = Fore.CYAN + f"Epoch: {epoch}, Step: {i}, Loss: {loss.item():.4f}, Train Accuracy: {train_acc.compute():.4f}"
+            progress_bar.set_description_str(description, refresh=False)
+
+
+@torch.no_grad()
+def __test_epoch(epoch, model, print_every_x_steps, test_acc, test_loader):
+    progress_bar = tqdm(test_loader)
+    for i, (data, target) in enumerate(progress_bar):
+        # Forward
+        data, target = data.cuda(), target.cuda()
+        output = model(data)
+
+        # Compute loss metric
+        loss = F.cross_entropy(output, target)
+
+        # Update metrics
+        test_acc.update(output, target)
+
+        # Print progress
+        if i % print_every_x_steps == 0:
+            description = Fore.YELLOW + f"Epoch: {epoch}, Step: {i}, Loss: {loss.item():.4f}, Test Accuracy: {test_acc.compute():.4f}"
+            progress_bar.set_description_str(description, refresh=False)
