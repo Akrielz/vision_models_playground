@@ -1,6 +1,7 @@
+from typing import Literal
+
 import torch
 from torch import nn
-from torch.nn import functional as F
 
 from models.components.convolutions.double_conv_block import DoubleConvBlock
 
@@ -13,11 +14,11 @@ class UpscaleBlock(nn.Module):
             scale: int = 2,
             conv_kernel_size: int = 3,
             conv_padding: int = 1,
-            bilinear: bool = True,
+            mode: Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "conv"] = "conv",
     ):
         super().__init__()
 
-        upscale = nn.Upsample(scale_factor=scale, mode='bilinear', align_corners=True) if bilinear \
+        upscale = nn.Upsample(scale_factor=scale, mode=mode, align_corners=True) if mode != "conv" \
             else nn.ConvTranspose2d(in_channels, in_channels, kernel_size=scale, stride=scale)
 
         conv = DoubleConvBlock(in_channels, out_channels, kernel_size=conv_kernel_size, padding=conv_padding)
@@ -29,7 +30,7 @@ class UpscaleBlock(nn.Module):
 
 
 def main():
-    block = UpscaleBlock(in_channels=16, out_channels=32, scale=2, conv_kernel_size=3, conv_padding=1, bilinear=False)
+    block = UpscaleBlock(in_channels=16, out_channels=32, scale=2, conv_kernel_size=3, conv_padding=1, mode="bicubic")
     x = torch.randn(1, 16, 32, 32)
     print(block(x).shape)
 

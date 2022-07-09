@@ -1,3 +1,5 @@
+from typing import Literal
+
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -13,15 +15,15 @@ class UpscaleConcatBlock(nn.Module):
             scale: int = 2,
             conv_kernel_size: int = 3,
             conv_padding: int = 1,
-            bilinear: bool = True,
+            mode: Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "conv"] = "conv",
             crop: bool = False
     ):
         super().__init__()
 
         self.upscale = nn.Sequential(
-            nn.Upsample(scale_factor=scale, mode='bilinear', align_corners=True),
+            nn.Upsample(scale_factor=scale, mode=mode, align_corners=True),
             nn.Conv2d(in_channels, in_channels // 2, kernel_size=scale+1, padding=scale-1)
-        ) if bilinear else \
+        ) if mode != "conv" else \
             nn.ConvTranspose2d(in_channels, in_channels // 2, kernel_size=scale, stride=scale)
 
         self.conv = DoubleConvBlock(in_channels, out_channels, kernel_size=conv_kernel_size, padding=conv_padding)
@@ -60,7 +62,7 @@ class UpscaleConcatBlock(nn.Module):
 
 
 def main():
-    block = UpscaleConcatBlock(in_channels=1024, out_channels=512, scale=2, conv_kernel_size=3, conv_padding=1, bilinear=False, crop=True)
+    block = UpscaleConcatBlock(in_channels=1024, out_channels=512, scale=2, conv_kernel_size=3, conv_padding=1, mode="conv", crop=True)
     x1 = torch.randn(1, 1024, 28, 28)
     x2 = torch.randn(1, 512, 64, 64)
     print(block(x1, x2).shape)
