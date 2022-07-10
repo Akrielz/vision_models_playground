@@ -36,11 +36,11 @@ class UNet(nn.Module):
         self.input_conv = DoubleConvBlock(in_channels, channels[0], kernel_size=conv_kernel_size, padding=conv_padding)
 
         # Create the downscale layers
-        for i in range(num_layers-1):
+        for i in range(num_layers - 1):
             self.downscale_layers.append(
                 DownscaleBlock(
                     in_channels=channels[i],
-                    out_channels=channels[i+1],
+                    out_channels=channels[i + 1],
                     scale=scale,
                     pooling_type=pooling_type,
                     conv_kernel_size=conv_kernel_size,
@@ -49,11 +49,11 @@ class UNet(nn.Module):
             )
 
         # Create the upscale layers
-        for i in range(num_layers-1):
+        for i in range(num_layers - 1):
             self.upscale_layers.append(
                 UpscaleConcatBlock(
-                    in_channels=channels[-i-1],
-                    out_channels=channels[-i-2],
+                    in_channels=channels[-i - 1],
+                    out_channels=channels[-i - 2],
                     scale=scale,
                     conv_kernel_size=conv_kernel_size,
                     conv_padding=conv_padding,
@@ -76,7 +76,7 @@ class UNet(nn.Module):
 
         # Pass the input through the upscale layers
         for i, upscale_layer in enumerate(self.upscale_layers):
-            x = upscale_layer(x, identity[-i-1])
+            x = upscale_layer(x, identity[-i - 1])
 
         # Pass the input through the output convolutional layer
         x = self.output_conv(x)
