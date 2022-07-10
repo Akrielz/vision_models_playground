@@ -719,6 +719,7 @@ List of the number of channels in each layer.
 - `pooling_type`: Literal['max', 'avg'].  
 Type of pooling to be used for the DownScale layers
 
+
 - `scale`: int.  
 Scale of the image for each stage.
 
