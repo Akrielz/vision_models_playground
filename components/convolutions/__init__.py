@@ -1,3 +1,4 @@
+# Classes
 from components.convolutions.downscale_block import DownscaleBlock
 from components.convolutions.conv_embedding import ConvEmbedding
 from components.convolutions.conv_block import ConvBlock

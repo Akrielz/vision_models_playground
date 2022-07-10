@@ -1,3 +1,4 @@
+# Classes
 from components.activations.relu_squared import ReluSquared
 from components.activations.swish import Swish
 from components.activations.geglu import GEGLU

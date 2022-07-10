@@ -29,15 +29,17 @@ def create_imports_for_all_sub_dirs(dir_path: str):
 
 
 def create_imports_classes_and_functions(dir_path: str):
-    create_import_shortcuts(dir_path, keyword='class', append=False)
-    create_import_shortcuts(dir_path, keyword='def', append=True)
+    create_import_shortcuts(dir_path, keyword='class', append=False, description="Classes")
+    create_import_shortcuts(dir_path, keyword='def', append=True, description="Functions")
 
 
-def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool = True):
+def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool = True, description: str = "Classes"):
     # Get a list with all the files in the directory
     files = os.listdir(dir_path)
 
-    all_imports = ""
+    all_imports = f"# {description}\n"
+    added = False
+
     # Iterate over all the files
     for file in files:
         # Skip files starting with "_"
@@ -74,8 +76,14 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
             # Append the import statement to the all imports string
             all_imports += import_string
 
+            added = True
+
     # Print the all imports string
     print(all_imports)
+
+    # If not added any imports, then do not create a file
+    if not added:
+        return
 
     # Write the all imports string to the file "__init__.py"
     open_mode = "w"
