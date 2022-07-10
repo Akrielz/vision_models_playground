@@ -733,6 +733,8 @@ Padding of the convolutional layers.
 
 - `method`: Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "conv"].  
 Method of computing the initial upscale of the image.
+If `conv` is selected, uses a convolutional transposed layer.
+Else, uses a `nn.functional.upsample` function with the corresponding method.
 
 
 - `crop`: bool.  
