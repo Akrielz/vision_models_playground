@@ -9,6 +9,7 @@
 - [Perceiver](#perceiver)
 - [Vision Perceiver](#vision-perceiver-vip)
 - [Convolutional Vision Transformer](#convolutional-vision-transformer-cvt)
+- [UNet](#unet)
 
 ## Description
 
@@ -36,7 +37,7 @@ Code example to initialize and use prebuild ResNet34
 
 ```python
 import torch
-from models.classifiers.resnet import build_resnet_34
+from models.classifiers import build_resnet_34
 
 model = build_resnet_34(num_classes=10, in_channels=3)
 
@@ -48,7 +49,8 @@ Code example to initialize ResNet34 using the custom ResNet
 
 ```python
 import torch
-from models.classifiers.resnet import ResNet, ResidualBlock
+from models.classifiers import ResNet
+from components import ResidualBlock
 
 model = ResNet(
     in_channels=3,
@@ -100,7 +102,7 @@ Code example to initialize and use Vision Transformer
 
 ```python
 import torch
-from models.classifiers.vision_transformer import VisionTransformer
+from models.classifiers import VisionTransformer
 
 model = VisionTransformer(
     image_size=256,
@@ -196,8 +198,8 @@ from torchvision import datasets, transforms
 from models.generative import GAN
 
 # Import custom Generator and Discriminator adequate to the problem
-from models.generative import Discriminator
-from models.generative import Generator
+from models.generative.adverserial.mnist_discriminator import Discriminator
+from models.generative.adverserial.mnist_generator import Generator
 
 # Create GAN
 generator = Generator()
@@ -259,7 +261,7 @@ Code example to initialize and use Perceiver
 
 ```python
 import torch
-from models.classifiers.perceiver import Perceiver
+from models.classifiers import Perceiver
 
 model = Perceiver(
     input_dim=3,
@@ -399,7 +401,7 @@ Code example to initialize and use Vision Perceiver
 
 ```python
 import torch
-from models.classifiers.vision_perceiver import VisionPerceiver
+from models.classifiers import VisionPerceiver
 
 model = VisionPerceiver(
     patch_size=4,
@@ -533,7 +535,7 @@ Code example to initialize and use prebuild CvT13
 
 ```python
 import torch
-from models.classifiers.conv_vision_transformer import build_cvt_13
+from models.classifiers import build_cvt_13
 
 model = build_cvt_13(num_classes=1000, in_channels=3)
 
@@ -545,7 +547,7 @@ Code example to initialize CvT13 using the custom Convolutional Vision Transform
 
 ```python
 import torch
-from models.classifiers.conv_vision_transformer import ConvVisionTransformer
+from models.classifiers import ConvVisionTransformer
 
 model = ConvVisionTransformer(
     in_channels=3,
@@ -668,3 +670,71 @@ The method of computing the projections of the Keys, Values and Queries.
 `conv` stand for convolutional normalized layer, followed by linear projection  
 `avg` stands for average pool layer, followed by linear projection  
 `linear` stands for linear projection.
+
+## UNet
+
+A pixel-level classifier based on the 
+[UNet](https://arxiv.org/abs/1505.04597v1) 
+architecture.
+
+### Usage
+
+Code example to initialize and use UNet
+
+```python
+import torch
+from models.auto_encoders import UNet
+
+model = UNet(
+    in_channels=1,
+    out_channels=2,
+    channels=[64, 128, 256, 512, 1024],
+    pooling_type="max",
+    scale=2,
+    conv_kernel_size=3,
+    conv_padding=0,
+    method="conv",
+    crop=True
+)
+x = torch.randn(1, 1, 572, 572)
+y = model(x)  # (1, 2, 388, 388)
+```
+
+### Parameters
+
+- `in_channels`: int.  
+Number of input channels.
+
+
+- `out_channels`: int.  
+Number of output channels.  
+Can be used as number of classes per pixel.  
+In case of segmentation, the number of classes can be 2 for example.
+
+
+- `channels`: List[int].  
+List of the number of channels in each layer.
+
+
+- `pooling_type`: Literal['max', 'avg'].  
+Type of pooling to be used for the DownScale layers
+
+- `scale`: int.  
+Scale of the image for each stage.
+
+
+- `conv_kernel_size`: int.  
+Kernel size of the convolutional layers.
+
+
+- `conv_padding`: int.  
+Padding of the convolutional layers.
+
+
+- `method`: Literal["nearest", "linear", "bilinear", "bicubic", "trilinear", "conv"].  
+Method of computing the initial upscale of the image.
+
+
+- `crop`: bool.  
+If enabled, the output each upscale layer will be cropped to the native size
+of the UpScaled image.

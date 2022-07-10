@@ -3,7 +3,7 @@ import re
 
 
 def create_imports_for_all_sub_dirs(dir_path: str):
-    # walk in all the sub directories
+    # Walk in all the subdirectories
     for root, dirs, files in os.walk(dir_path):
         path = root.split(os.sep)
 

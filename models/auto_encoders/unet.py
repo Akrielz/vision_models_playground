@@ -2,7 +2,6 @@ from typing import Literal, List
 
 import torch
 from torch import nn
-from torch.nn import functional as F
 
 from components import DownscaleBlock, DoubleConvBlock, UpscaleConcatBlock
 
@@ -86,8 +85,8 @@ class UNet(nn.Module):
 
 def main():
     unet = UNet(
-        in_channels=3,
-        out_channels=3,
+        in_channels=1,
+        out_channels=2,
         channels=[64, 128, 256, 512, 1024],
         pooling_type="max",
         scale=2,
@@ -96,7 +95,7 @@ def main():
         method="conv",
         crop=True
     )
-    x = torch.randn(1, 3, 572, 572)
+    x = torch.randn(1, 1, 572, 572)
     print(unet(x).shape)
 
 
