@@ -12,7 +12,7 @@ class UNet(nn.Module):
             self,
             in_channels: int,
             out_channels: int,
-            channels: List[int] = None,
+            channels: List[int],
             pooling_type: Literal["avg", "max"] = "max",
             scale: int = 2,
             conv_kernel_size: int = 3,
