@@ -22,7 +22,7 @@ class UNet(nn.Module):
     ):
         super(UNet, self).__init__()
 
-        # Make sure the number of channels is correct
+        # Make sure channels are given
         assert channels is not None, "channels must be specified"
 
         # Extract the number of layers from the list of channels
