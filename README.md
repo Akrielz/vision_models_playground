@@ -683,7 +683,7 @@ Code example to initialize and use UNet
 
 ```python
 import torch
-from models.auto_encoders import UNet
+from models.segmentation import UNet
 
 model = UNet(
     in_channels=1,
