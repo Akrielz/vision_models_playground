@@ -94,4 +94,6 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
 if __name__ == "__main__":
     create_imports_for_all_sub_dirs(dir_path="models/classifiers")
     create_imports_for_all_sub_dirs(dir_path="models/segmentation")
+    create_imports_for_all_sub_dirs(dir_path="models/augmenters")
+    create_imports_for_all_sub_dirs(dir_path="models/autoencoders")
     create_imports_for_all_sub_dirs(dir_path="components")

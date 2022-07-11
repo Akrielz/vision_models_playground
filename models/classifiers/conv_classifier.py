@@ -2,6 +2,7 @@ import torch
 from einops import rearrange
 from torch import nn
 from torch.nn import functional as F
+from torchmetrics import Accuracy, AUROC
 
 from utility.datasets import get_mnist_dataset, get_cifar10_dataset
 from utility.train_models import train_model
@@ -63,7 +64,8 @@ class ConvolutionalClassifier(nn.Module):
 def main():
     model = ConvolutionalClassifier(channels=3).cuda()
     train_dataset, test_dataset = get_cifar10_dataset()
-    train_model(model, train_dataset, test_dataset, num_epochs=100)
+    metrics = [Accuracy(num_classes=10).cuda(), AUROC(num_classes=10).cuda()]
+    train_model(model, train_dataset, test_dataset, num_epochs=100, metrics=metrics)
 
 
 if __name__ == '__main__':
