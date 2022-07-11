@@ -86,10 +86,7 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
         return
 
     # Write the all imports string to the file "__init__.py"
-    open_mode = "w"
-    if append:
-        open_mode = "a"
-
+    open_mode = "a" if append else "w"
     with open(os.path.join(dir_path, "__init__.py"), open_mode) as f:
         f.write(all_imports)
 
