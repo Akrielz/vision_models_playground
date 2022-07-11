@@ -2,11 +2,9 @@ import torch
 from einops import rearrange
 from torch.utils.data import TensorDataset
 from torchvision import datasets, transforms
-from torchvision.datasets import VisionDataset
 
 
-def to_autoencoder_dataset(dataset):
-    # Replace the labels with the images
+def to_autoencoder_dataset(dataset: torch.utils.data.Dataset):
     images = dataset.data
 
     if images.dtype == torch.uint8:
@@ -36,7 +34,7 @@ def get_tourism_dataset(root: str='./data', name: str='notredame'):
     return photo_tour_train, photo_tour_test
 
 
-def get_n_images(dataset, num_images):
+def get_n_images(dataset: torch.utils.data.Dataset, num_images: int):
     train_loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=1,
