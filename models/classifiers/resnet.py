@@ -7,7 +7,7 @@ from components.convolutions.conv_block import ConvBlock
 from components import ResidualBlock
 from components.convolutions.bottleneck_block import BottleneckBlock
 from utility.datasets import get_cifar10_dataset
-from utility.train_models import train_model
+from utility.train_models import train_model, train_model_classifier
 
 
 class ResNet(nn.Module):
@@ -141,7 +141,7 @@ def main():
     model = build_resnet_50().cuda()
 
     dataset_train, dataset_test = get_cifar10_dataset()
-    train_model(model, dataset_train, dataset_test)
+    train_model_classifier(model, dataset_train, dataset_test)
 
 
 if __name__ == "__main__":

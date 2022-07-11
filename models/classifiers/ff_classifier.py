@@ -5,7 +5,7 @@ from einops import rearrange
 from torch import nn
 
 from utility.datasets import get_mnist_dataset, get_cifar10_dataset
-from utility.train_models import train_model
+from utility.train_models import train_model, train_model_classifier
 
 
 class FeedForwardClassifier(nn.Module):
@@ -52,7 +52,7 @@ def main():
         num_classes=10,
     ).cuda()
     train_dataset, test_dataset = get_cifar10_dataset()
-    train_model(model, train_dataset, test_dataset, num_epochs=100)
+    train_model_classifier(model, train_dataset, test_dataset, num_epochs=100)
 
 
 if __name__ == '__main__':

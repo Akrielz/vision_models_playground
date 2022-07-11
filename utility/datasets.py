@@ -8,6 +8,10 @@ from torchvision.datasets import VisionDataset
 def to_autoencoder_dataset(dataset):
     # Replace the labels with the images
     images = dataset.data
+
+    if images.dtype == torch.uint8:
+        images = images.float() / 255.0
+
     return TensorDataset(images, images)
 
 

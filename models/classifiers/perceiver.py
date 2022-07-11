@@ -11,7 +11,7 @@ from components import FeedForward
 from components import TransformerEncoder
 from components import FourierEmbedding
 from utility.datasets import get_cifar10_dataset
-from utility.train_models import train_model
+from utility.train_models import train_model, train_model_classifier
 
 
 class Perceiver(nn.Module):
@@ -181,7 +181,7 @@ def main():
     )
 
     dataset_train, dataset_test = get_cifar10_dataset()
-    train_model(model, dataset_train, dataset_test, batch_size=128)
+    train_model_classifier(model, dataset_train, dataset_test, batch_size=128)
 
 
 if __name__ == "__main__":

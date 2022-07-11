@@ -8,7 +8,7 @@ from einops.layers.torch import Rearrange
 
 from components import TransformerEncoder
 from utility.datasets import get_cifar10_dataset
-from utility.train_models import train_model
+from utility.train_models import train_model, train_model_classifier
 
 
 class VisionTransformer(nn.Module):
@@ -89,7 +89,7 @@ def main():
         pool="cls",
     ).cuda()
     train_dataset, test_dataset = get_cifar10_dataset()
-    train_model(model, train_dataset, test_dataset, num_epochs=100)
+    train_model_classifier(model, train_dataset, test_dataset, num_epochs=100)
 
 
 if __name__ == '__main__':

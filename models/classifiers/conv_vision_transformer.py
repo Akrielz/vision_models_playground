@@ -8,7 +8,7 @@ from components import QuickGELU
 from components.convolutions.conv_transformer import ConvTransformer
 from utility.datasets import get_cifar10_dataset
 from utility.functions import get_number_of_parameters
-from utility.train_models import train_model
+from utility.train_models import train_model, train_model_classifier
 
 
 class ConvVisionTransformer(nn.Module):
@@ -201,4 +201,4 @@ if __name__ == '__main__':
     print(f"Number of params: {get_number_of_parameters(model) / (1024 ** 2):.3f} M")
 
     dataset_train, dataset_test = get_cifar10_dataset()
-    train_model(model, dataset_train, dataset_test)
+    train_model_classifier(model, dataset_train, dataset_test)

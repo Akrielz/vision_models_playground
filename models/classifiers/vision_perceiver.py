@@ -7,7 +7,7 @@ from einops import rearrange
 from models.classifiers.perceiver import Perceiver
 from components import FourierEmbedding
 from utility.datasets import get_cifar10_dataset
-from utility.train_models import train_model
+from utility.train_models import train_model, train_model_classifier
 
 
 class VisionPerceiver(nn.Module):
@@ -110,7 +110,7 @@ def main():
     ).cuda()
 
     train_dataset, test_dataset = get_cifar10_dataset()
-    train_model(model, train_dataset, test_dataset, batch_size=128)
+    train_model_classifier(model, train_dataset, test_dataset, batch_size=128)
 
 
 if __name__ == "__main__":

@@ -65,7 +65,7 @@ def main():
     train_dataset, test_dataset = map(lambda d: to_autoencoder_dataset(d), [train_dataset, test_dataset])
 
     # use train_dataset to train the model
-    train_model(model, train_dataset, test_dataset, num_epochs=100)
+    train_model(model, train_dataset, test_dataset, num_epochs=100, loss_fn=F.mse_loss)
 
 
 if __name__ == '__main__':
