@@ -741,3 +741,4 @@ Else, uses a `nn.functional.upsample` function with the corresponding method.
 - `crop`: bool.  
 If enabled, the output each upscale layer will be cropped to the native size
 of the UpScaled image.
+
