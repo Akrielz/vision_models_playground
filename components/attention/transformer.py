@@ -76,6 +76,7 @@ class Transformer(nn.Module):
             context: torch.Tensor,
             target_mask: Optional[torch.Tensor] = None,
             context_mask: Optional[torch.Tensor] = None,
+            return_context_too: bool = False,
     ) -> torch.Tensor:
         """
         Args:
@@ -90,6 +91,9 @@ class Transformer(nn.Module):
 
             context_mask:
                 Context mask. [batch_size, seq_len_2]
+
+            return_context_too:
+                Whether to return the context.
         """
 
         encoder_self_attention_mask = self.encoder.compute_2d_mask(context_mask)
@@ -100,11 +104,11 @@ class Transformer(nn.Module):
             context = encoder_layer(context, encoder_self_attention_mask)
             target = decoder_layer(target, context, decoder_self_attention_mask, decoder_cross_attention_mask)
 
-        return target
+        return target if not return_context_too else (target, context)
 
 
 def main():
-    decoder = Transformer(
+    model = Transformer(
         target_dim=64,
         context_dim=128,
         depth=6,
@@ -127,7 +131,7 @@ def main():
     context_mask = torch.ones(2, 10).bool()
     context_mask[:, 8:] = 0
 
-    output = decoder(target, context, target_mask, context_mask)
+    output = model(target, context, target_mask, context_mask)
     print(output.shape)
 
 
