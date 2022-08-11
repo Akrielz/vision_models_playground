@@ -47,7 +47,14 @@ class VisionTransformer(nn.Module):
         self.dropout = nn.Dropout(emb_dropout)
 
         self.transformer = TransformerEncoder(
-            projection_dim, depth, heads, dim_head, mlp_dim, dropout, dropout, apply_rotary_emb
+            dim=projection_dim,
+            depth=depth,
+            heads=heads,
+            head_dim=dim_head,
+            mlp_dim=mlp_dim,
+            mlp_dropout=dropout,
+            attention_dropout=dropout,
+            apply_rotary_emb=apply_rotary_emb
         )
 
         self.pool = pool

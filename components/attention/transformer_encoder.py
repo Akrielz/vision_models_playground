@@ -36,6 +36,7 @@ class TransformerEncoder(nn.Module):
             drop_path: Dropout probability for the drop path.
             norm_type: Type of normalization to use.
         """
+
         super().__init__()
 
         def get_transformer_encoder_layer() -> nn.Module:
@@ -78,9 +79,7 @@ class TransformerEncoder(nn.Module):
             or a list of tensors of shape [batch_size, seq_len, dim], with len(output) = depth.
         """
 
-        if mask is not None and mask.dim() == 2:
-            seq_len = mask.size(1)
-            mask = repeat(mask, "b n -> b l n", l=seq_len)
+        mask = self.compute_2d_mask(mask)
 
         intermediate_results = []
 
@@ -89,6 +88,15 @@ class TransformerEncoder(nn.Module):
             intermediate_results.append(x)
 
         return x if not return_intermediates else intermediate_results
+
+    @staticmethod
+    def compute_2d_mask(mask: torch.Tensor, target_len: Optional[int] = None) -> torch.Tensor:
+        if mask is not None and mask.dim() == 2:
+            if target_len is None:
+                target_len = mask.size(1)
+            mask = repeat(mask, "b n -> b l n", l=target_len)
+
+        return mask
 
 
 def main():

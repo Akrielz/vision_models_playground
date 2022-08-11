@@ -76,18 +76,22 @@ class TransformerDecoder(nn.Module):
 
         assert len(context_list) == len(self.layers)
 
-        if target_mask is not None and target_mask.dim() == 2:
-            seq_len = target_mask.size(1)
-            target_mask = repeat(target_mask, "b n -> b l n", l=seq_len)
-
-        if context_mask is not None and context_mask.dim() == 2:
-            seq_len = target_mask.size(1)
-            context_mask = repeat(context_mask, "b n -> b l n", l=seq_len)
+        target_mask = self.compute_2d_mask(target_mask)
+        context_mask = self.compute_2d_mask(context_mask, target.shape[1])
 
         for transformer_decoder_layer, context in zip(self.layers, context_list):
             target = transformer_decoder_layer(target, context, target_mask, context_mask)
 
         return target
+
+    @staticmethod
+    def compute_2d_mask(mask: torch.Tensor, target_len: Optional[int] = None) -> torch.Tensor:
+        if mask is not None and mask.dim() == 2:
+            if target_len is None:
+                target_len = mask.size(1)
+            mask = repeat(mask, "b n -> b l n", l=target_len)
+
+        return mask
 
 
 def main():
