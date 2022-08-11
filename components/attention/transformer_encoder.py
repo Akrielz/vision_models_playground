@@ -1,9 +1,10 @@
-from typing import Optional, Callable
+from typing import Optional, Callable, Literal, List, Union
 
 import torch
+from einops import repeat
 from torch import nn
 
-from components.attention.attend import Attend
+from components.attention.transformer_encoder_layer import TransformerEncoderLayer
 
 
 class TransformerEncoder(nn.Module):
@@ -17,29 +18,99 @@ class TransformerEncoder(nn.Module):
             mlp_dropout: float = 0.0,
             attention_dropout: float = 0.0,
             apply_rotary_emb: bool = False,
-            activation: Optional[Callable] = None
+            activation: Optional[Callable] = None,
+            drop_path: float = 0.0,
+            norm_type: Literal['pre_norm', 'post_norm'] = 'pre_norm',
     ):
+        """
+        Args:
+            dim: Dimension of the input tensor.
+            depth: Number of layers in the encoder.
+            heads: Number of attention heads.
+            head_dim: Dimension of each attention head.
+            mlp_dim: Dimension of the MLP.
+            mlp_dropout: Dropout probability for the MLP.
+            attention_dropout: Dropout probability for the attention.
+            apply_rotary_emb: Whether to apply rotary embedding to the queries.
+            activation: Activation function for the MLP.
+            drop_path: Dropout probability for the drop path.
+            norm_type: Type of normalization to use.
+        """
         super().__init__()
 
-        def get_self_attend() -> nn.Module:
-            return Attend(
-                query_dim=dim,
-                context_dim=None,
-                num_heads=heads,
+        def get_transformer_encoder_layer() -> nn.Module:
+            return TransformerEncoderLayer(
+                dim=dim,
+                heads=heads,
                 head_dim=head_dim,
+                mlp_dim=mlp_dim,
+                mlp_dropout=mlp_dropout,
                 attention_dropout=attention_dropout,
-                ff_hidden_dim=mlp_dim,
-                ff_dropout=mlp_dropout,
                 apply_rotary_emb=apply_rotary_emb,
-                activation=activation
+                activation=activation,
+                drop_path=drop_path,
+                norm_type=norm_type,
             )
 
         self.layers = nn.ModuleList([])
         for _ in range(depth):
-            self.layers.append(get_self_attend())
+            self.layers.append(get_transformer_encoder_layer())
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        for attend in self.layers:
-            x = attend(queries=x)
+    def forward(
+            self,
+            x: torch.Tensor,
+            mask: Optional[torch.Tensor] = None,
+            return_intermediates: bool = False,
+    ) -> Union[torch.Tensor, List[torch.Tensor]]:
+        """
+        Args:
+            x:
+                Input tensor of shape [batch_size, seq_len, dim].
 
-        return x
+            mask:
+                Mask tensor of shape [batch_size, seq_len] or [batch_size, seq_len, seq_len].
+
+            return_intermediates:
+                Whether to return the intermediate tensors.
+
+        Returns:
+            Output tensor of shape [batch_size, seq_len, dim]
+            or a list of tensors of shape [batch_size, seq_len, dim], with len(output) = depth.
+        """
+
+        if mask is not None and mask.dim() == 2:
+            seq_len = mask.size(1)
+            mask = repeat(mask, "b n -> b l n", l=seq_len)
+
+        intermediate_results = []
+
+        for transformer_encoder_layer in self.layers:
+            x = transformer_encoder_layer(x=x, mask=mask)
+            intermediate_results.append(x)
+
+        return x if not return_intermediates else intermediate_results
+
+
+def main():
+    encoder = TransformerEncoder(
+        dim=512,
+        depth=6,
+        heads=8,
+        head_dim=64,
+        mlp_dim=512,
+        mlp_dropout=0.1,
+        attention_dropout=0.1,
+        apply_rotary_emb=True,
+        activation=nn.ReLU(),
+        norm_type='post_norm',
+    )
+
+    x = torch.randn(4, 10, 512)
+    mask = torch.ones(4, 10).bool()
+    mask[:, 5:] = 0
+
+    print(encoder(x, mask).shape)
+
+
+if __name__ == '__main__':
+    main()

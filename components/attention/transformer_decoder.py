@@ -1,0 +1,122 @@
+from typing import Optional, Callable, Literal, List, Union
+
+import torch
+from einops import repeat
+from torch import nn
+
+from components.attention.transformer_decoder_layer import TransformerDecoderLayer
+
+
+class TransformerDecoder(nn.Module):
+    def __init__(
+            self,
+            target_dim: int,
+            context_dim: int,
+            depth: int,
+            heads: int,
+            head_dim: int,
+            mlp_dim: int,
+            mlp_dropout: float = 0.0,
+            attention_dropout: float = 0.0,
+            apply_rotary_emb: bool = False,
+            activation: Optional[Callable] = None,
+            drop_path: float = 0.0,
+            norm_type: Literal['pre_norm', 'post_norm'] = 'pre_norm',
+    ):
+        super().__init__()
+
+        def get_transformer_decoder_layer() -> nn.Module:
+            return TransformerDecoderLayer(
+                target_dim=target_dim,
+                context_dim=context_dim,
+                heads=heads,
+                head_dim=head_dim,
+                mlp_dim=mlp_dim,
+                mlp_dropout=mlp_dropout,
+                attention_dropout=attention_dropout,
+                apply_rotary_emb=apply_rotary_emb,
+                activation=activation,
+                drop_path=drop_path,
+                norm_type=norm_type,
+            )
+
+        self.layers = nn.ModuleList([])
+
+        for _ in range(depth):
+            self.layers.append(get_transformer_decoder_layer())
+
+    def forward(
+            self,
+            target: torch.Tensor,
+            context: Union[torch.Tensor, List[torch.Tensor]],
+            target_mask: Optional[torch.Tensor] = None,
+            context_mask: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        """
+        Args:
+            target:
+                Target tensor. [batch_size, seq_len_1, dim_1]
+
+            context:
+                Context tensor. [batch_size, seq_len_2, dim_2]
+                or a list [batch_size, seq_len_i, dim_i], where len(context) = depth.
+
+            target_mask:
+                Mask for the target tensor of shape [batch_size, seq_len_1]
+                or [batch_size, seq_len_1, seq_len_1].
+
+            context_mask:
+                Mask for context tensor of shape [batch_size, seq_len_2]
+                or [batch_size, seq_len_1, seq_len_2].
+        """
+
+        context_list = context
+        if isinstance(context, torch.Tensor):
+            context_list = [context for _ in range(len(self.layers))]
+
+        assert len(context_list) == len(self.layers)
+
+        if target_mask is not None and target_mask.dim() == 2:
+            seq_len = target_mask.size(1)
+            target_mask = repeat(target_mask, "b n -> b l n", l=seq_len)
+
+        if context_mask is not None and context_mask.dim() == 2:
+            seq_len = target_mask.size(1)
+            context_mask = repeat(context_mask, "b n -> b l n", l=seq_len)
+
+        for transformer_decoder_layer, context in zip(self.layers, context_list):
+            target = transformer_decoder_layer(target, context, target_mask, context_mask)
+
+        return target
+
+
+def main():
+    decoder = TransformerDecoder(
+        target_dim=64,
+        context_dim=128,
+        depth=6,
+        heads=8,
+        head_dim=64,
+        mlp_dim=2048,
+        mlp_dropout=0.1,
+        attention_dropout=0.1,
+        apply_rotary_emb=True,
+        activation=nn.ReLU(),
+        drop_path=0.1,
+        norm_type='pre_norm',
+    )
+
+    target = torch.randn(2, 6, 64)
+    context = torch.randn(2, 10, 128)
+
+    target_mask = torch.ones(2, 6).bool()
+    target_mask[:, 3:] = 0
+    context_mask = torch.ones(2, 10).bool()
+    context_mask[:, 8:] = 0
+
+    output = decoder(target, context, target_mask, context_mask)
+    print(output.shape)
+
+
+if __name__ == '__main__':
+    main()

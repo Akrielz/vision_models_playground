@@ -10,11 +10,11 @@ class PreNorm(nn.Module):
     def __init__(self, dim: int, fn: Callable, context_dim: Optional[int] = None):
         super().__init__()
         self.fn = fn
-        self.norm = nn.LayerNorm(dim)
+        self.norm_queries = nn.LayerNorm(dim)
         self.norm_context = nn.LayerNorm(context_dim) if exists(context_dim) else None
 
     def forward(self, x: torch.Tensor, **kwargs) -> torch.Tensor:
-        x = self.norm(x)
+        x = self.norm_queries(x)
 
         if exists(self.norm_context):
             context = kwargs['context']
