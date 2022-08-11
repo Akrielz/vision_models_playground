@@ -94,6 +94,10 @@ class Transformer(nn.Module):
 
             return_context_too:
                 Whether to return the context.
+
+        Returns:
+            Output tensor. [batch_size, seq_len_1, dim_1] if return_context_too is False,
+            otherwise Tuple[Tensor[batch_size, seq_len_1, seq_len_1, dim_1], Tensor[batch_size, seq_len_2, dim_2]]
         """
 
         encoder_self_attention_mask = self.encoder.compute_2d_mask(context_mask)
