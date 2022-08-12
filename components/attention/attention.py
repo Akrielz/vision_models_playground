@@ -43,32 +43,38 @@ class Attention(nn.Module):
             context: Optional[torch.Tensor] = None,
             mask: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
+        # Get useful info
         h = self.heads
-
-        q = self.to_q(queries)
         context = default(context, queries)
+
+        # Get query, key and value
+        q = self.to_q(queries)
         k, v = self.to_kv(context).chunk(2, dim=-1)
 
-        q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> (b h) n d', h=h), [q, k, v])
+        # Reshape query, key and value according to heads
+        q, k, v = map(lambda t: rearrange(t, "b n (h d) -> b h n d", h=h), [q, k, v])
 
+        # Apply rotary embedding if necessary
         if exists(self.rotary_emb):
-            q, k = map(lambda t: rearrange(t, '(b h) n d -> b h n d', h=h), [q, k])
             q, k = map(lambda t: self.rotary_emb.rotate_queries_or_keys(t), [q, k])
-            q, k = map(lambda t: rearrange(t, 'b h n d -> (b h) n d', h=h), [q, k])
 
-        sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
+        # Apply attention
+        sim = einsum("b h i d, b h j d -> b h i j", q, k) * self.scale
 
+        # Mask attention if necessary
         if exists(mask):
-            mask = repeat(mask, 'b ... -> (b h) ...', h=h)
+            mask = repeat(mask, "b ... -> b h ...", h=h)
 
             max_neg_value = -torch.finfo(sim.dtype).max
             sim.masked_fill_(~mask, max_neg_value)
 
+        # Compute attention sim matrix
         attn = sim.softmax(dim=-1)
         attn = self.dropout(attn)
 
-        out = einsum('b i j, b j d -> b i d', attn, v)
+        # Apply attention to values
+        out = einsum("b h i j, b h j d -> b h i d", attn, v)
+        out = rearrange(out, "b h n d -> b n (h d)")
 
-        out = rearrange(out, '(b h) n d -> b n (h d)', h=h)
-
+        # Project to output channels
         return self.to_out(out)
