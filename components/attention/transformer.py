@@ -105,8 +105,10 @@ class Transformer(nn.Module):
         """
 
         encoder_self_attention_mask = self.encoder.compute_2d_mask(context_mask)
+
         decoder_self_attention_mask = self.decoder.compute_2d_mask(target_mask)
         decoder_self_attention_mask = self.decoder.compute_causal_mask(decoder_self_attention_mask, causal)
+
         decoder_cross_attention_mask = self.decoder.compute_2d_mask(context_mask, target.shape[1])
 
         for encoder_layer, decoder_layer in zip(self.encoder.layers, self.decoder.layers):
