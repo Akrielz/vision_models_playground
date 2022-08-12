@@ -25,18 +25,41 @@ class Transformer(nn.Module):
     ):
         """
         Args:
-            target_dim: Dimension of the input tensor.
-            context_dim: Dimension of the input tensor.
-            depth: Number of layers in the encoder.
-            heads: Number of attention heads.
-            head_dim: Dimension of each attention head.
-            mlp_dim: Dimension of the MLP.
-            mlp_dropout: Dropout probability for the MLP.
-            attention_dropout: Dropout probability for the attention.
-            apply_rotary_emb: Whether to apply rotary embedding to the queries.
-            activation: Activation function for the MLP.
-            drop_path: Dropout probability for the drop path.
-            norm_type: Type of normalization to use.
+            target_dim:
+                Dimension of the input tensor.
+
+            context_dim:
+                Dimension of the input tensor.
+
+            depth:
+                Number of layers in the encoder.
+
+            heads:
+                Number of attention heads.
+
+            head_dim:
+                Dimension of each attention head.
+
+            mlp_dim:
+                Dimension of the MLP.
+
+            mlp_dropout:
+                Dropout probability for the MLP.
+
+            attention_dropout:
+                Dropout probability for the attention.
+
+            apply_rotary_emb:
+                Whether to apply rotary embedding to the queries.
+
+            activation:
+                Activation function for the MLP.
+
+            drop_path:
+                Dropout probability for the drop path.
+
+            norm_type:
+                Type of normalization to use.
         """
 
         super().__init__()
@@ -104,6 +127,7 @@ class Transformer(nn.Module):
             otherwise Tuple[Tensor[batch_size, seq_len_1, seq_len_1, dim_1], Tensor[batch_size, seq_len_2, dim_2]]
         """
 
+        # Compute the masks
         encoder_self_attention_mask = self.encoder.compute_2d_mask(context_mask)
 
         decoder_self_attention_mask = self.decoder.compute_2d_mask(target_mask)
@@ -111,6 +135,7 @@ class Transformer(nn.Module):
 
         decoder_cross_attention_mask = self.decoder.compute_2d_mask(context_mask, target.shape[1])
 
+        # Forward pass
         for encoder_layer, decoder_layer in zip(self.encoder.layers, self.decoder.layers):
             context = encoder_layer(context, encoder_self_attention_mask)
             target = decoder_layer(target, context, decoder_self_attention_mask, decoder_cross_attention_mask)

@@ -24,6 +24,45 @@ class TransformerDecoder(nn.Module):
             drop_path: float = 0.0,
             norm_type: Literal['pre_norm', 'post_norm'] = 'pre_norm',
     ):
+        """
+        Args:
+            target_dim:
+                Dimension of the input tensor.
+
+            context_dim:
+                Dimension of the input tensor.
+
+            depth:
+                Number of layers in the encoder.
+
+            heads:
+                Number of attention heads.
+
+            head_dim:
+                Dimension of each attention head.
+
+            mlp_dim:
+                Dimension of the MLP.
+
+            mlp_dropout:
+                Dropout probability for the MLP.
+
+            attention_dropout:
+                Dropout probability for the attention.
+
+            apply_rotary_emb:
+                Whether to apply rotary embedding to the queries.
+
+            activation:
+                Activation function for the MLP.
+
+            drop_path:
+                Dropout probability for the drop path.
+
+            norm_type:
+                Type of normalization to use.
+        """
+
         super().__init__()
 
         def get_transformer_decoder_layer() -> nn.Module:
@@ -75,17 +114,22 @@ class TransformerDecoder(nn.Module):
                 Whether to use causal attention to the target.
         """
 
+        # Assert default values.
         context_list = context
         if isinstance(context, torch.Tensor):
             context_list = [context for _ in range(len(self.layers))]
 
+        # Make sure the context_list was correctly provided.
         assert len(context_list) == len(self.layers)
 
+        # Compute the mask for the target.
         target_mask = self.compute_2d_mask(target_mask)
         target_mask = self.compute_causal_mask(target_mask, causal)
 
+        # Compute the mask for the context.
         context_mask = self.compute_2d_mask(context_mask, target.shape[1])
 
+        # Forward pass.
         for transformer_decoder_layer, context in zip(self.layers, context_list):
             target = transformer_decoder_layer(target, context, target_mask, context_mask)
 

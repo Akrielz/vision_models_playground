@@ -24,18 +24,39 @@ class TransformerEncoder(nn.Module):
     ):
         """
         Args:
-            dim: Dimension of the input tensor.
-            depth: Number of layers in the encoder.
-            heads: Number of attention heads.
-            head_dim: Dimension of each attention head.
-            mlp_dim: Dimension of the MLP.
-            mlp_dropout: Dropout probability for the MLP.
-            attention_dropout: Dropout probability for the attention.
-            apply_rotary_emb: Whether to apply rotary embedding to the queries.
-            activation: Activation function for the MLP.
-            drop_path: Dropout probability for the drop path.
-            norm_type: Type of normalization to use.
-        """
+            dim:
+                Dimension of the input tensor.
+
+            depth:
+                Number of layers in the encoder.
+
+            heads:
+                Number of attention heads.
+
+            head_dim:
+                Dimension of each attention head.
+
+            mlp_dim:
+                Dimension of the MLP.
+
+            mlp_dropout:
+                Dropout probability for the MLP.
+
+            attention_dropout:
+                Dropout probability for the attention.
+
+            apply_rotary_emb:
+                Whether to apply rotary embedding to the queries.
+
+            activation:
+                Activation function for the MLP.
+
+            drop_path:
+                Dropout probability for the drop path.
+
+            norm_type:
+                Type of normalization to use.
+            """
 
         super().__init__()
 
@@ -79,10 +100,11 @@ class TransformerEncoder(nn.Module):
             or a list of tensors of shape [batch_size, seq_len, dim], with len(output) = depth.
         """
 
+        # Compute the mask for the input.
         mask = self.compute_2d_mask(mask)
 
+        # Forward pass
         intermediate_results = []
-
         for transformer_encoder_layer in self.layers:
             x = transformer_encoder_layer(x=x, mask=mask)
             intermediate_results.append(x)
