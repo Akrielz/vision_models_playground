@@ -77,6 +77,7 @@ class Transformer(nn.Module):
             target_mask: Optional[torch.Tensor] = None,
             context_mask: Optional[torch.Tensor] = None,
             return_context_too: bool = False,
+            causal: bool = False,
     ) -> torch.Tensor:
         """
         Args:
@@ -95,6 +96,9 @@ class Transformer(nn.Module):
             return_context_too:
                 Whether to return the context.
 
+            causal:
+                Whether to use causal attention to the target.
+
         Returns:
             Output tensor. [batch_size, seq_len_1, dim_1] if return_context_too is False,
             otherwise Tuple[Tensor[batch_size, seq_len_1, seq_len_1, dim_1], Tensor[batch_size, seq_len_2, dim_2]]
@@ -102,6 +106,7 @@ class Transformer(nn.Module):
 
         encoder_self_attention_mask = self.encoder.compute_2d_mask(context_mask)
         decoder_self_attention_mask = self.decoder.compute_2d_mask(target_mask)
+        decoder_self_attention_mask = self.decoder.compute_causal_mask(decoder_self_attention_mask, causal)
         decoder_cross_attention_mask = self.decoder.compute_2d_mask(context_mask, target.shape[1])
 
         for encoder_layer, decoder_layer in zip(self.encoder.layers, self.decoder.layers):

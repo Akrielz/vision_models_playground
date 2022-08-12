@@ -5,6 +5,7 @@ from einops import repeat
 from torch import nn
 
 from components.attention.transformer_decoder_layer import TransformerDecoderLayer
+from utility.masks import create_triangular_mask
 
 
 class TransformerDecoder(nn.Module):
@@ -51,6 +52,7 @@ class TransformerDecoder(nn.Module):
             context: Union[torch.Tensor, List[torch.Tensor]],
             target_mask: Optional[torch.Tensor] = None,
             context_mask: Optional[torch.Tensor] = None,
+            causal: bool = False,
     ) -> torch.Tensor:
         """
         Args:
@@ -68,6 +70,9 @@ class TransformerDecoder(nn.Module):
             context_mask:
                 Mask for context tensor of shape [batch_size, seq_len_2]
                 or [batch_size, seq_len_1, seq_len_2].
+
+            causal:
+                Whether to use causal attention to the target.
         """
 
         context_list = context
@@ -77,12 +82,22 @@ class TransformerDecoder(nn.Module):
         assert len(context_list) == len(self.layers)
 
         target_mask = self.compute_2d_mask(target_mask)
+        target_mask = self.compute_causal_mask(causal, target_mask)
+
         context_mask = self.compute_2d_mask(context_mask, target.shape[1])
 
         for transformer_decoder_layer, context in zip(self.layers, context_list):
             target = transformer_decoder_layer(target, context, target_mask, context_mask)
 
         return target
+
+    @staticmethod
+    def compute_causal_mask(target_mask, causal):
+        if causal and target_mask is not None:
+            triangular_mask = create_triangular_mask(target_mask.shape[0], target_mask.shape[1], device=target_mask.device)
+            target_mask = target_mask & triangular_mask
+
+        return target_mask
 
     @staticmethod
     def compute_2d_mask(mask: torch.Tensor, target_len: Optional[int] = None) -> torch.Tensor:
@@ -118,7 +133,7 @@ def main():
     context_mask = torch.ones(2, 10).bool()
     context_mask[:, 8:] = 0
 
-    output = decoder(target, context, target_mask, context_mask)
+    output = decoder(target, context, target_mask, context_mask, causal=True)
     print(output.shape)
 
 
