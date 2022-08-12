@@ -82,7 +82,7 @@ class TransformerDecoder(nn.Module):
         assert len(context_list) == len(self.layers)
 
         target_mask = self.compute_2d_mask(target_mask)
-        target_mask = self.compute_causal_mask(causal, target_mask)
+        target_mask = self.compute_causal_mask(target_mask, causal)
 
         context_mask = self.compute_2d_mask(context_mask, target.shape[1])
 
