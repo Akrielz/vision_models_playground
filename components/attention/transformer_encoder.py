@@ -92,24 +92,18 @@ class TransformerEncoder(nn.Module):
             mask:
                 Mask tensor of shape [batch_size, seq_len] or [batch_size, seq_len, seq_len].
 
-            return_intermediates:
-                Whether to return the intermediate tensors.
-
         Returns:
             Output tensor of shape [batch_size, seq_len, dim]
-            or a list of tensors of shape [batch_size, seq_len, dim], with len(output) = depth.
         """
 
         # Compute the mask for the input.
         mask = self.compute_2d_mask(mask)
 
         # Forward pass
-        intermediate_results = []
         for transformer_encoder_layer in self.layers:
             x = transformer_encoder_layer(x=x, mask=mask)
-            intermediate_results.append(x)
 
-        return x if not return_intermediates else intermediate_results
+        return x
 
     @staticmethod
     def compute_2d_mask(mask: torch.Tensor, target_len: Optional[int] = None) -> torch.Tensor:
