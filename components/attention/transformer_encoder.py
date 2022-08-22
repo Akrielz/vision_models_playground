@@ -82,7 +82,6 @@ class TransformerEncoder(nn.Module):
             self,
             x: torch.Tensor,
             mask: Optional[torch.Tensor] = None,
-            return_intermediates: bool = False,
     ) -> Union[torch.Tensor, List[torch.Tensor]]:
         """
         Args:
