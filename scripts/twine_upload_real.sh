@@ -1,1 +1,1 @@
-twine upload dist/vision_models_playground-0.1.0.tar.gz
+twine upload dist/vision_models_playground-0.1.1.tar.gz

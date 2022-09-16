@@ -1,0 +1,5 @@
+__version__ = "0.1.1"
+__author__ = "Alexandru Stirbu"
+__email__ = "Stirbu.Alexandru.Net@outlook.com"
+__license__ = "MIT"
+__username__ = "Akrielz"
