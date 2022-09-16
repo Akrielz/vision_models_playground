@@ -7,7 +7,7 @@ setup(
     license='MIT',
     description="Akriel's vision models playground",
     author='Alexandru Stirbu',
-    author_email='stirbu.alexandru.net@outlook.com',
+    author_email='Stirbu.Alexandru.Net@outlook.com',
     url='https://github.com/Akrielz/vision_models_playground',
     keywords=[
         'artificial intelligence',
