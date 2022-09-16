@@ -1,0 +1,1 @@
+from vision_models_playground.models.generative.adverserial.gan import GAN

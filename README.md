@@ -37,7 +37,7 @@ Code example to initialize and use prebuild ResNet34
 
 ```python
 import torch
-from models.classifiers import build_resnet_34
+from vision_models_playground.models.classifiers import build_resnet_34
 
 model = build_resnet_34(num_classes=10, in_channels=3)
 
@@ -49,8 +49,8 @@ Code example to initialize ResNet34 using the custom ResNet
 
 ```python
 import torch
-from models.classifiers import ResNet
-from components import ResidualBlock
+from vision_models_playground.models.classifiers import ResNet
+from vision_models_playground.components import ResidualBlock
 
 model = ResNet(
     in_channels=3,
@@ -102,7 +102,7 @@ Code example to initialize and use Vision Transformer
 
 ```python
 import torch
-from models.classifiers import VisionTransformer
+from vision_models_playground.models.classifiers import VisionTransformer
 
 model = VisionTransformer(
     image_size=256,
@@ -195,11 +195,11 @@ import torch
 
 from torchvision import datasets, transforms
 
-from models.generative import GAN
+from vision_models_playground.models.generative import GAN
 
 # Import custom Generator and Discriminator adequate to the problem
-from models.generative.adverserial.mnist_discriminator import Discriminator
-from models.generative.adverserial.mnist_generator import Generator
+from vision_models_playground.models.generative import Discriminator
+from vision_models_playground.models.generative import Generator
 
 # Create GAN
 generator = Generator()
@@ -261,7 +261,7 @@ Code example to initialize and use Perceiver
 
 ```python
 import torch
-from models.classifiers import Perceiver
+from vision_models_playground.models.classifiers import Perceiver
 
 model = Perceiver(
     input_dim=3,
@@ -401,7 +401,7 @@ Code example to initialize and use Vision Perceiver
 
 ```python
 import torch
-from models.classifiers import VisionPerceiver
+from vision_models_playground.models.classifiers import VisionPerceiver
 
 model = VisionPerceiver(
     patch_size=4,
@@ -535,7 +535,7 @@ Code example to initialize and use prebuild CvT13
 
 ```python
 import torch
-from models.classifiers import build_cvt_13
+from vision_models_playground.models.classifiers import build_cvt_13
 
 model = build_cvt_13(num_classes=1000, in_channels=3)
 
@@ -547,7 +547,7 @@ Code example to initialize CvT13 using the custom Convolutional Vision Transform
 
 ```python
 import torch
-from models.classifiers import ConvVisionTransformer
+from vision_models_playground.models.classifiers import ConvVisionTransformer
 
 model = ConvVisionTransformer(
     in_channels=3,
@@ -683,7 +683,7 @@ Code example to initialize and use UNet
 
 ```python
 import torch
-from models.segmentation import UNet
+from vision_models_playground.models.segmentation import UNet
 
 model = UNet(
     in_channels=1,
