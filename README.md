@@ -3,6 +3,7 @@
 ## Table of Contents
 
 - [Description](#description)
+- [Install](#install)
 - [ResNet](#resnet)
 - [Vision Transformer](#vision-transformer-vit)
 - [Generative Adversarial Networks](#generative-adversarial-networks-gan)
@@ -16,6 +17,14 @@
 This playground is a collection of vision models implemented by me from scratch
 in PyTorch, with the purpose of getting a better understanding of the specific
 papers and techniques used.
+
+## Install
+
+In order to install this package, run the following command:
+
+```bash
+$ pip install vision-models-playground
+```
 
 ## ResNet
 
