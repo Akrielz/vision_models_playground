@@ -59,7 +59,7 @@ Code example to initialize ResNet34 using the custom ResNet
 ```python
 import torch
 from vision_models_playground.models.classifiers import ResNet
-from vision_models_playground.components import ResidualBlock
+from vision_models_playground.components.convolutions import ResidualBlock
 
 model = ResNet(
     in_channels=3,
@@ -207,8 +207,8 @@ from torchvision import datasets, transforms
 from vision_models_playground.models.generative import GAN
 
 # Import custom Generator and Discriminator adequate to the problem
-from vision_models_playground.models.generative import Discriminator
-from vision_models_playground.models.generative import Generator
+from vision_models_playground.models.generative.adverserial.gan import Discriminator
+from vision_models_playground.models.generative.adverserial.gan import Generator
 
 # Create GAN
 generator = Generator()
