@@ -4,6 +4,8 @@
 
 - [Description](#description)
 - [Install](#install)
+
+## Models
 - [ResNet](#resnet)
 - [Vision Transformer](#vision-transformer-vit)
 - [Generative Adversarial Networks](#generative-adversarial-networks-gan)
