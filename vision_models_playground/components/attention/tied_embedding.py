@@ -12,8 +12,8 @@ class TiedEmbedding(torch.nn.Module):
     def forward(self, inputs: torch.Tensor, embed: bool = True):
         if embed:
             return torch.nn.functional.embedding(inputs, self.w)
-        else:
-            return torch.tensordot(inputs, self.w.t(), 1) + self.b
+
+        return torch.tensordot(inputs, self.w.t(), 1) + self.b
 
 
 def main():
