@@ -2,6 +2,7 @@
 from vision_models_playground.components.attention.transformer_encoder_layer import TransformerEncoderLayer
 from vision_models_playground.components.attention.attention import Attention
 from vision_models_playground.components.attention.transformer_decoder_layer import TransformerDecoderLayer
+from vision_models_playground.components.attention.tied_embedding import TiedEmbedding
 from vision_models_playground.components.attention.pre_norm import PreNorm
 from vision_models_playground.components.attention.post_norm import PostNorm
 from vision_models_playground.components.attention.attend import Attend

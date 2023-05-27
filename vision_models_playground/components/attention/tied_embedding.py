@@ -17,6 +17,8 @@ class TiedEmbedding(torch.nn.Module):
 
 
 def main():
+    vocab_size = 1000
+
     for embedding_size in range(1, 50):
 
         tied_embedding_softmax = TiedEmbedding(vocab_size, embedding_size)
