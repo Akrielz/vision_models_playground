@@ -34,6 +34,13 @@ def get_tourism_dataset(root: str='./data', name: str='notredame'):
     return photo_tour_train, photo_tour_test
 
 
+def get_voc_detection_dataset(root: str='./data', year: str='2012'):
+    voc_train = datasets.VOCDetection(root=root, year=year, image_set='train', download=True)
+    voc_test = datasets.VOCDetection(root=root, year=year, image_set='val', download=True)
+
+    return voc_train, voc_test
+
+
 def get_n_images(dataset: torch.utils.data.Dataset, num_images: int):
     train_loader = torch.utils.data.DataLoader(
         dataset,

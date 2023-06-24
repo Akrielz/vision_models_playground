@@ -5,7 +5,7 @@ import torch
 import torchmetrics
 from colorama import Fore
 from torch import nn
-from torch.nn import functional as F, CrossEntropyLoss
+from torch.nn import CrossEntropyLoss
 from torchmetrics import Accuracy, AUROC, AveragePrecision, Dice, F1Score
 from tqdm import tqdm
 
@@ -27,13 +27,18 @@ def train_model_classifier(
     if loss_fn is None:
         loss_fn = CrossEntropyLoss()
 
+    metrics_kwargs = {
+        'num_classes': num_classes,
+        'task': 'multiclass'
+    }
+
     if metrics is None:
         metrics = [
-            Accuracy(num_classes=num_classes).cuda(),
-            AveragePrecision(num_classes=num_classes).cuda(),
-            AUROC(num_classes=num_classes).cuda(),
-            Dice(num_classes=num_classes).cuda(),
-            F1Score(num_classes=num_classes).cuda()
+            Accuracy(**metrics_kwargs).cuda(),
+            AveragePrecision(**metrics_kwargs).cuda(),
+            AUROC(**metrics_kwargs).cuda(),
+            Dice(**metrics_kwargs).cuda(),
+            F1Score(**metrics_kwargs).cuda()
         ]
 
     train_model(model, train_dataset, test_dataset, loss_fn, optimizer, num_epochs, batch_size, print_every_x_steps, metrics)
