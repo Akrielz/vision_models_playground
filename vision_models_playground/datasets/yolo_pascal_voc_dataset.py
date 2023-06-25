@@ -125,12 +125,15 @@ class YoloPascalVocDataset(Dataset):
 
         return boxes
 
+    @property
+    def cell_size(self):
+        return self.image_size[0] // self.grid_size, self.image_size[1] // self.grid_size
+
     def __getitem__(self, idx: int):
         image, target = self.raw_dataset[idx]
         image = self.transform(image)
 
-        grid_size_x = image.shape[1] // self.grid_size
-        grid_size_y = image.shape[2] // self.grid_size
+        grid_size_x, grid_size_y = self.cell_size
 
         # Get the boxes and labels
         class_labels = torch.zeros(self.class_shape)
@@ -157,7 +160,9 @@ class YoloPascalVocDataset(Dataset):
             class_one_hot = torch.zeros(self.num_classes)
             class_one_hot[class_id] = 1.0
             class_labels[row, col] = class_one_hot
+            class_grid_ids[(row, col)] = class_id
 
+            # Compute the bounding box index
             bbox_index = bbox_grid_index.get((row, col), 0)
             start_idx = 5 * bbox_index
 

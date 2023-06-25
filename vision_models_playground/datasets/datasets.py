@@ -3,6 +3,8 @@ from einops import rearrange
 from torch.utils.data import TensorDataset, DataLoader
 from torchvision import datasets, transforms
 
+from vision_models_playground.datasets.yolo_pascal_voc_dataset import YoloPascalVocDataset
+
 
 def to_autoencoder_dataset(dataset: torch.utils.data.Dataset):
     images = dataset.data
@@ -37,6 +39,13 @@ def get_tourism_dataset(root: str='./data', name: str='notredame'):
 def get_voc_detection_dataset_raw(root: str= './data', year: str= '2012'):
     voc_train = datasets.VOCDetection(root=root, year=year, image_set='train', download=True)
     voc_test = datasets.VOCDetection(root=root, year=year, image_set='val', download=True)
+
+    return voc_train, voc_test
+
+
+def get_voc_detection_dataset_yolo(root: str= './data', year: str= '2012'):
+    voc_train = YoloPascalVocDataset(root=root, year=year, phase='train')
+    voc_test = YoloPascalVocDataset(root=root, year=year, phase='val')
 
     return voc_train, voc_test
 
