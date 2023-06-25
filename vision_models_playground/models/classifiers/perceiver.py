@@ -9,7 +9,7 @@ from vision_models_playground.components.activations.geglu import GEGLU
 from vision_models_playground.components.attention import TransformerEncoder, FeedForward
 from vision_models_playground.components.attention.attend import Attend
 from vision_models_playground.components.position_embedding import FourierEmbedding
-from vision_models_playground.utility.datasets import get_cifar10_dataset
+from vision_models_playground.datasets.datasets import get_cifar10_dataset
 from vision_models_playground.utility.train_models import train_model_classifier
 
 

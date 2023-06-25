@@ -1,6 +1,6 @@
 import torch
 from einops import rearrange
-from torch.utils.data import TensorDataset
+from torch.utils.data import TensorDataset, DataLoader
 from torchvision import datasets, transforms
 
 
@@ -34,7 +34,7 @@ def get_tourism_dataset(root: str='./data', name: str='notredame'):
     return photo_tour_train, photo_tour_test
 
 
-def get_voc_detection_dataset(root: str='./data', year: str='2012'):
+def get_voc_detection_dataset_raw(root: str= './data', year: str= '2012'):
     voc_train = datasets.VOCDetection(root=root, year=year, image_set='train', download=True)
     voc_test = datasets.VOCDetection(root=root, year=year, image_set='val', download=True)
 
@@ -42,7 +42,7 @@ def get_voc_detection_dataset(root: str='./data', year: str='2012'):
 
 
 def get_n_images(dataset: torch.utils.data.Dataset, num_images: int):
-    train_loader = torch.utils.data.DataLoader(
+    train_loader = DataLoader(
         dataset,
         batch_size=1,
         shuffle=True

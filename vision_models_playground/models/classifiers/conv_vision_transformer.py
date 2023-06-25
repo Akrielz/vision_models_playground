@@ -6,7 +6,7 @@ from torch import nn
 
 from vision_models_playground.components.activations import QuickGELU
 from vision_models_playground.components.convolutions.conv_transformer import ConvTransformer
-from vision_models_playground.utility.datasets import get_cifar10_dataset
+from vision_models_playground.datasets.datasets import get_cifar10_dataset
 from vision_models_playground.utility.functions import get_number_of_parameters
 from vision_models_playground.utility.train_models import train_model_classifier
 

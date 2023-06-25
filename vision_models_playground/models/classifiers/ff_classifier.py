@@ -4,7 +4,7 @@ import torch
 from einops import rearrange
 from torch import nn
 
-from vision_models_playground.utility.datasets import get_cifar10_dataset
+from vision_models_playground.datasets.datasets import get_cifar10_dataset
 from vision_models_playground.utility.train_models import train_model_classifier
 
 

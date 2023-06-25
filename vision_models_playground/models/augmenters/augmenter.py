@@ -4,7 +4,7 @@ from torch import nn
 from torchvision.transforms import RandomHorizontalFlip, RandomPerspective, RandomResizedCrop, RandomErasing, RandomAffine, \
     RandomRotation, ColorJitter
 
-from vision_models_playground.utility.datasets import get_mnist_dataset, get_n_images
+from vision_models_playground.datasets.datasets import get_mnist_dataset, get_n_images
 
 
 class Augmeneter(nn.Module):

@@ -6,7 +6,7 @@ from torch import nn
 from vision_models_playground.components.convolutions.conv_block import ConvBlock
 from vision_models_playground.components.convolutions.residual_block import ResidualBlock
 from vision_models_playground.components.convolutions.bottleneck_block import BottleneckBlock
-from vision_models_playground.utility.datasets import get_cifar10_dataset
+from vision_models_playground.datasets.datasets import get_cifar10_dataset
 from vision_models_playground.utility.train_models import train_model_classifier
 
 
