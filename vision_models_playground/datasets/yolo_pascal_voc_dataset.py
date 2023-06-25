@@ -36,6 +36,7 @@ class YoloPascalVocDataset(Dataset):
             image_size: Tuple[int, int] = (448, 448),
             num_bounding_boxes: int = 2,
             grid_size: int = 7,
+            download: bool = False
     ):
         super().__init__()
 
@@ -46,6 +47,7 @@ class YoloPascalVocDataset(Dataset):
         self.image_size = image_size
         self.num_bounding_boxes = num_bounding_boxes
         self.grid_size = grid_size
+        self.download = download
 
         # Save the paths
         self.class_map_file = f'{root}/voc_classes/{phase}_{year}.pkl'
@@ -53,7 +55,7 @@ class YoloPascalVocDataset(Dataset):
         # Create the transform, but don't apply it yet because the VocDetection dataset does not
         # work with transforms, so we will apply it manually
         self.transform = Compose([ToTensor(), Resize(image_size)])
-        self.raw_dataset = VOCDetection(root=root, year=year, image_set=phase, download=True)
+        self.raw_dataset = VOCDetection(root=root, year=year, image_set=phase, download=download)
 
         # Get the class map
         self.class_map = self._get_class_map()

@@ -15,37 +15,37 @@ def to_autoencoder_dataset(dataset: torch.utils.data.Dataset):
     return TensorDataset(images, images)
 
 
-def get_mnist_dataset(root: str='./data'):
-    mnist_train = datasets.MNIST(root=root, train=True, download=True, transform=transforms.ToTensor())
-    mnist_test = datasets.MNIST(root=root, train=False, download=True, transform=transforms.ToTensor())
+def get_mnist_dataset(root: str = './data', download: bool = False):
+    mnist_train = datasets.MNIST(root=root, train=True, download=download, transform=transforms.ToTensor())
+    mnist_test = datasets.MNIST(root=root, train=False, download=download, transform=transforms.ToTensor())
 
     return mnist_train, mnist_test
 
 
-def get_cifar10_dataset(root: str='./data'):
-    cifar10_train = datasets.CIFAR10(root=root, train=True, download=True, transform=transforms.ToTensor())
-    cifar10_test = datasets.CIFAR10(root=root, train=False, download=True, transform=transforms.ToTensor())
+def get_cifar10_dataset(root: str = './data', download: bool = False):
+    cifar10_train = datasets.CIFAR10(root=root, train=True, download=download, transform=transforms.ToTensor())
+    cifar10_test = datasets.CIFAR10(root=root, train=False, download=download, transform=transforms.ToTensor())
 
     return cifar10_train, cifar10_test
 
 
-def get_tourism_dataset(root: str='./data', name: str='notredame'):
-    photo_tour_train = datasets.PhotoTour(root=root, name=name, train=True, download=True)
-    photo_tour_test = datasets.PhotoTour(root=root, name=name, train=False, download=True)
+def get_tourism_dataset(root: str = './data', name: str = 'notredame', download: bool = False):
+    photo_tour_train = datasets.PhotoTour(root=root, name=name, train=True, download=download)
+    photo_tour_test = datasets.PhotoTour(root=root, name=name, train=False, download=download)
 
     return photo_tour_train, photo_tour_test
 
 
-def get_voc_detection_dataset_raw(root: str= './data', year: str= '2012'):
-    voc_train = datasets.VOCDetection(root=root, year=year, image_set='train', download=True)
-    voc_test = datasets.VOCDetection(root=root, year=year, image_set='val', download=True)
+def get_voc_detection_dataset_raw(root: str = './data', year: str = '2012', download: bool = True):
+    voc_train = datasets.VOCDetection(root=root, year=year, image_set='train', download=download)
+    voc_test = datasets.VOCDetection(root=root, year=year, image_set='val', download=download)
 
     return voc_train, voc_test
 
 
-def get_voc_detection_dataset_yolo(root: str= './data', year: str= '2012'):
-    voc_train = YoloPascalVocDataset(root=root, year=year, phase='train')
-    voc_test = YoloPascalVocDataset(root=root, year=year, phase='val')
+def get_voc_detection_dataset_yolo(root: str = './data', year: str = '2012', download: bool = True):
+    voc_train = YoloPascalVocDataset(root=root, year=year, phase='train', download=download)
+    voc_test = YoloPascalVocDataset(root=root, year=year, phase='val', download=download)
 
     return voc_train, voc_test
 
