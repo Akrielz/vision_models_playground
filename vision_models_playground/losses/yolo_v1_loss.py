@@ -41,6 +41,7 @@ class YoloV1Loss(nn.Module):
     def __init__(
             self,
             weight_coord: float = 5.0,
+            weight_obj: float = 1.0,
             weight_no_obj: float = 0.5,
             num_bounding_boxes: int = 2,
             num_classes: int = 20,
@@ -49,6 +50,7 @@ class YoloV1Loss(nn.Module):
 
         self.weight_coord = weight_coord
         self.weight_no_obj = weight_no_obj
+        self.weight_obj = weight_obj
         self.bb_ops = YoloBoundingBoxOperations(
             num_bounding_boxes=num_bounding_boxes,
             num_classes=num_classes
@@ -118,8 +120,9 @@ class YoloV1Loss(nn.Module):
         )
 
         # Compute the confidence loss
+        # Here I've added weight_obj which by default is 1.0, therefore it doesn't change anything
         confidence_loss = (
-            self.mse_sum(confidence_pred[mask_obj_per_box], confidence_target[mask_obj_per_box]) +
+            self.weight_obj * self.mse_sum(confidence_pred[mask_obj_per_box], confidence_target[mask_obj_per_box]) +
             self.weight_no_obj * self.mse_sum(confidence_pred[mask_no_obj_per_box], confidence_target[mask_no_obj_per_box])
         )
 
