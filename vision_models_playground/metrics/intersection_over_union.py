@@ -135,7 +135,7 @@ def main():
 
     # Apply the metric
     iou = IntersectionOverUnion()
-    print(iou(pred_box, target_box))
+    print(iou(pred_box, target_box))  # (0.25 + 1.0) / 2 = 0.625
 
 
 if __name__ == "__main__":
