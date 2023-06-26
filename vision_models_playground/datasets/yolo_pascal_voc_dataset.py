@@ -129,6 +129,9 @@ class YoloPascalVocDataset(Dataset):
 
     @property
     def cell_size(self):
+        """
+        Returns the size of each cell in the grid as a tuple (grid_size_x, grid_size_y)
+        """
         return self.image_size[0] // self.grid_size, self.image_size[1] // self.grid_size
 
     def __getitem__(self, idx: int):
@@ -166,6 +169,11 @@ class YoloPascalVocDataset(Dataset):
 
             # Compute the bounding box index
             bbox_index = bbox_grid_index.get((row, col), 0)
+
+            if bbox_index >= self.num_bounding_boxes:
+                # If there are already num_bounding_boxes bounding boxes in this grid cell, then skip this bounding box
+                continue
+
             start_idx = 5 * bbox_index
 
             # Compute the bounding box

@@ -11,6 +11,9 @@ class YoloBoundingBoxOperations:
     This class is used to get the bounding boxes from the YOLO dataset.
 
     The standard tensor shape for the bounding boxes is (grid_size, grid_size, 5 * num_bounding_boxes + num_classes)
+    For example for grid_size=7, bounding boxes = 2 and classes = 20, we would have the shape:
+    [7, 7, 2*5 + 20] = [7, 7, 30]
+    Where we have the first two bounding boxes, and then the classes on the last dimension.
     [(x, y, w, h, confidence), (x, y, w, h, confidence), class_1, class_2, ..., class_20]
     """
     def __init__(
@@ -99,7 +102,7 @@ class YoloBoundingBoxOperations:
         confidence = self.get_attr(bounding_boxes, 'confidence')
         return confidence >= 0.5
 
-    def to_coords(self, bounding_boxes: torch.Tensor):
+    def to_corners(self, bounding_boxes: torch.Tensor):
         """
         Convert the bounding boxes to coordinates.
 
@@ -113,12 +116,7 @@ class YoloBoundingBoxOperations:
         torch.Tensor
             The bounding boxes coordinates with shape (grid_size, grid_size, num_bounding_boxes, 4)
         """
-        self._check_input(bounding_boxes)
-
-        x = self.get_attr(bounding_boxes, 'x')
-        y = self.get_attr(bounding_boxes, 'y')
-        w = self.get_attr(bounding_boxes, 'w')
-        h = self.get_attr(bounding_boxes, 'h')
+        x, y, w, h = torch.unbind(self.get_window(bounding_boxes), dim=-1)
 
         x_min = x - w / 2
         y_min = y - h / 2
@@ -126,6 +124,23 @@ class YoloBoundingBoxOperations:
         y_max = y + h / 2
 
         return torch.stack([x_min, y_min, x_max, y_max], dim=-1)
+
+    def get_window(self, bounding_boxes: torch.Tensor):
+        self._check_input(bounding_boxes)
+        x = self.get_attr(bounding_boxes, 'x')
+        y = self.get_attr(bounding_boxes, 'y')
+        w = self.get_attr(bounding_boxes, 'w')
+        h = self.get_attr(bounding_boxes, 'h')
+
+        return torch.stack([x, y, w, h], dim=-1)
+
+    def get_window_for_yolo_loss(self, bounding_boxes: torch.Tensor):
+        x = self.get_attr(bounding_boxes, 'x')
+        y = self.get_attr(bounding_boxes, 'y')
+        w = self.get_attr(bounding_boxes, 'w')
+        h = self.get_attr(bounding_boxes, 'h')
+
+        return torch.stack([x, y, torch.sqrt(w), torch.sqrt(h)], dim=-1)
 
     def compute_iou(
             self,
@@ -152,8 +167,8 @@ class YoloBoundingBoxOperations:
         self._check_input(target_bounding_boxes)
 
         # Convert the bounding boxes to coordinates per box [batch_size, grid_size, grid_size, num_bounding_boxes, 4]
-        pred_coords = self.to_coords(pred_bounding_boxes)
-        target_coords = self.to_coords(target_bounding_boxes)
+        pred_coords = self.to_corners(pred_bounding_boxes)
+        target_coords = self.to_corners(target_bounding_boxes)
 
         return compute_iou(pred_coords, target_coords)
 
