@@ -125,12 +125,12 @@ def main():
     # Create the predicted and
     pred_box = torch.tensor([
         [0, 0, 10, 10],
-        # [0, 0, 10, 10],
+        [0, 0, 10, 10],
     ], dtype=torch.float32)
 
     target_box = torch.tensor([
         [0, 0, 10, 10],
-        # [0, 0, 5, 5],
+        [0, 0, 5, 5],
     ], dtype=torch.float32)
 
     # Apply the metric
