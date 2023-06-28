@@ -1,9 +1,10 @@
 from typing import Tuple, Optional, Union
 
 import torch
-from torch import nn
 from torchvision.transforms import InterpolationMode
 import torchvision.transforms.functional as F
+
+from vision_models_playground.transforms.base import TransformWithCoordsModule
 
 
 def resize_coords(
@@ -29,7 +30,7 @@ def resize_coords(
     return coords
 
 
-class ResizeWithCoords(nn.Module):
+class ResizeWithCoords(TransformWithCoordsModule):
     """
     Resize the input image or coords to the given size.
     """

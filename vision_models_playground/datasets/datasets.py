@@ -43,9 +43,9 @@ def get_voc_detection_dataset_raw(root: str = './data', year: str = '2012', down
     return voc_train, voc_test
 
 
-def get_voc_detection_dataset_yolo(root: str = './data', year: str = '2012', download: bool = False):
-    voc_train = YoloPascalVocDataset(root=root, year=year, phase='train', download=download)
-    voc_test = YoloPascalVocDataset(root=root, year=year, phase='val', download=download)
+def get_voc_detection_dataset_yolo(root: str = './data', year: str = '2012', download: bool = False, num_bounding_boxes: int = 2):
+    voc_train = YoloPascalVocDataset(root=root, year=year, phase='train', download=download, num_bounding_boxes=num_bounding_boxes)
+    voc_test = YoloPascalVocDataset(root=root, year=year, phase='val', download=download, num_bounding_boxes=num_bounding_boxes)
 
     return voc_train, voc_test
 

@@ -54,7 +54,7 @@ class YoloPascalVocDataset(Dataset):
 
         # Create the transform, but don't apply it yet because the VocDetection dataset does not
         # work with transforms, so we will apply it manually
-        self.transform = Compose([ToTensor(), Resize(image_size)])
+        self.transform = Compose([ToTensor(), Resize(image_size, antialias=True)])
         self.raw_dataset = VOCDetection(root=root, year=year, image_set=phase, download=download)
 
         # Get the class map

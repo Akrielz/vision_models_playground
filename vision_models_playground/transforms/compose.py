@@ -2,11 +2,11 @@ from typing import Optional, Tuple
 
 import torch
 
-from vision_models_playground.trasnforms.base import TransformWithCoords
+from vision_models_playground.transforms.base import TransformWithCoordsModule
 
 
-class ComposeWithCoords(TransformWithCoords):
-    def __init__(self, transforms: list[TransformWithCoords]):
+class ComposeWithCoords(TransformWithCoordsModule):
+    def __init__(self, transforms: list[TransformWithCoordsModule]):
         super().__init__()
         self.transforms = transforms
 

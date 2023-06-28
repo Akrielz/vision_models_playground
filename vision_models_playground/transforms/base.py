@@ -5,7 +5,7 @@ import torch
 from torch import nn
 
 
-class TransformWithCoords(nn.Module, ABC):
+class TransformWithCoordsModule(nn.Module, ABC):
     """
     Base class for transforms that take coords as input. The coords are optional.
     """
