@@ -88,7 +88,3 @@ class ResizeWithCoords(nn.Module):
             coords_resized = resize_coords(coords, original_size, self.size)
 
         return image_resized, coords_resized
-
-
-if __name__ == '__main__':
-    main()
