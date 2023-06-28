@@ -36,14 +36,14 @@ def get_tourism_dataset(root: str = './data', name: str = 'notredame', download:
     return photo_tour_train, photo_tour_test
 
 
-def get_voc_detection_dataset_raw(root: str = './data', year: str = '2012', download: bool = True):
+def get_voc_detection_dataset_raw(root: str = './data', year: str = '2012', download: bool = False):
     voc_train = datasets.VOCDetection(root=root, year=year, image_set='train', download=download)
     voc_test = datasets.VOCDetection(root=root, year=year, image_set='val', download=download)
 
     return voc_train, voc_test
 
 
-def get_voc_detection_dataset_yolo(root: str = './data', year: str = '2012', download: bool = True):
+def get_voc_detection_dataset_yolo(root: str = './data', year: str = '2012', download: bool = False):
     voc_train = YoloPascalVocDataset(root=root, year=year, phase='train', download=download)
     voc_test = YoloPascalVocDataset(root=root, year=year, phase='val', download=download)
 
@@ -62,7 +62,7 @@ def get_n_images(dataset: torch.utils.data.Dataset, num_images: int):
         if i == num_images:
             break
 
-        if isinstance(x, tuple):
+        if isinstance(x, tuple) or isinstance(x, list):
             x = x[0]
 
         if len(x.shape) == 3:

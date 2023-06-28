@@ -13,13 +13,13 @@ class YoloV1Loss(nn.Module):
     The loss is calculated as follows:
 
     - For each cell, For each bounding box if the cell has an object:
-    obj_loss = weight_obj * (
+    obj_loss = weight_coords * (
         [x_i - x_hat_i]^2 + [y_i - y_hat_i]^2 +
         [sqrt(w_i) - sqrt(w_hat_i)]^2 + [sqrt(h_i) - sqrt(h_hat_i)]^2
     ) + [C_i - C_hat_i]^2
 
     - For each cell, For each bounding box if the cell does not have an object:
-    sum = weight_noobj * [C_i - C_hat_i]^2
+    no_obj_loss = weight_noobj * [C_i - C_hat_i]^2
 
     - For each cell if the cell has an object:
     class_loss = [p_i - p_hat_i]^2
@@ -34,8 +34,8 @@ class YoloV1Loss(nn.Module):
     - C_hat_i is the predicted confidence
     - p_i is the ground truth class
     - p_hat_i is the predicted class
-    - weight_obj is the weight for the loss of the cells that have an object
-    - weight_noobj is the weight for the loss of the cells that do not have an object
+    - weight_coords is the weight for the loss of the cells that have an object applied only for coords
+    - weight_no_obj is the weight for the loss of the cells that do not have an object
     """
 
     def __init__(
