@@ -39,7 +39,7 @@ class ResizeWithCoords(TransformWithCoordsModule):
             self,
             size: Tuple[int, int],
             interpolation: InterpolationMode = InterpolationMode.BILINEAR,
-            antialias: Optional[Union[str, bool]] = "warn"
+            antialias: Optional[Union[str, bool]] = True
     ):
         """
         Arguments
