@@ -113,8 +113,6 @@ def affine_coords(
         center,
     )  # shape [3, 3]
 
-    print(affine_matrix)
-
     # Cast the coords to float
     coords = coords.to(torch.float32)
 

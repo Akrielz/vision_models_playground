@@ -7,7 +7,7 @@ import torchvision.transforms.functional as F
 from vision_models_playground.transforms.base import TransformWithCoordsModule
 
 
-def perpsective_coords(
+def perspective_coords(
         coords: torch.Tensor,
         start_points: List[Tuple[int, int]],
         end_points: List[Tuple[int, int]],
@@ -103,6 +103,6 @@ class RandomPerspectiveWithCoords(TransformWithCoordsModule):
         # Apply the transform to the coords
         distorted_coords = None
         if coords is not None:
-            distorted_coords = perpsective_coords(coords, start_points, end_points)
+            distorted_coords = perspective_coords(coords, start_points, end_points)
 
         return distorted_image, distorted_coords

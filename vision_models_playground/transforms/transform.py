@@ -5,7 +5,7 @@ import torch
 from vision_models_playground.transforms.base import TransformWithCoordsModule
 
 
-class TransformWithCoords(TransformWithCoordsModule):
+class WithCoords(TransformWithCoordsModule):
     """
     This is a generic module that allows to apply a transform to an image,
     considering that the coords will not be transformed.

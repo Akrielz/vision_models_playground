@@ -60,6 +60,7 @@ def rotate_coords(
     angle = np.deg2rad(angle)
 
     # Compute the rotation matrix
+    # This is the clockwise rotation matrix, because that's applied to the image too
     rotation_matrix = torch.tensor([
         [np.cos(angle), np.sin(angle)],
         [-np.sin(angle), np.cos(angle)]

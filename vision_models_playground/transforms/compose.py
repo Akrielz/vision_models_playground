@@ -1,13 +1,11 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 import torch
 from torch import nn
 
-from vision_models_playground.transforms.base import TransformWithCoordsModule
-
 
 class ComposeGeneral(nn.Module):
-    def __init__(self, transforms: list[TransformWithCoordsModule]):
+    def __init__(self, transforms: List[nn.Module]):
         super().__init__()
         self.transforms = transforms
 
@@ -19,7 +17,7 @@ class ComposeGeneral(nn.Module):
 
 
 class ComposeRandomOrder(nn.Module):
-    def __init__(self, transforms: list[TransformWithCoordsModule]):
+    def __init__(self, transforms: List[nn.Module]):
         super().__init__()
         self.transforms = transforms
 
