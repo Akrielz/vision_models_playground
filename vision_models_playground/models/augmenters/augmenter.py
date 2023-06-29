@@ -22,7 +22,6 @@ class Augmeneter(nn.Module):
             RandomResizedCrop(size=image_size, scale=(0.90, 1.00)),
             RandomErasing(value=background_color, scale=(0.1, 0.15)),
             RandomAffine(degrees=rotation_angles, fill=background_color),
-            RandomRotation(degrees=rotation_angles, fill=background_color),
             ColorJitter(brightness=(0.8, 1.0)),
             ColorJitter(contrast=(0.8, 1.0)),
             ColorJitter(saturation=(0.5, 1.0)),

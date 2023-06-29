@@ -1,22 +1,36 @@
 from typing import Optional, Tuple
 
 import torch
+from torch import nn
 
 from vision_models_playground.transforms.base import TransformWithCoordsModule
 
 
-class ComposeWithCoords(TransformWithCoordsModule):
+class ComposeGeneral(nn.Module):
     def __init__(self, transforms: list[TransformWithCoordsModule]):
         super().__init__()
         self.transforms = transforms
 
-    def forward(
-            self,
-            image: torch.Tensor,
-            coords: Optional[torch.Tensor] = None
-    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+    def forward(self, *args) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         for transform in self.transforms:
-            image, coords = transform(image, coords)
+            args = transform(*args)
 
-        return image, coords
+        return args
 
+
+class ComposeRandomOrder(nn.Module):
+    def __init__(self, transforms: list[TransformWithCoordsModule]):
+        super().__init__()
+        self.transforms = transforms
+
+    def forward(self, *args) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+
+        # get a permutation of the transforms
+        transforms_len = len(self.transforms)
+        permutation = torch.randperm(transforms_len)
+
+        for i in permutation:
+            transform = self.transforms[i]
+            args = transform(*args)
+
+        return args
