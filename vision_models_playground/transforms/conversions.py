@@ -30,7 +30,6 @@ def from_general_to_standard(image: torch.Tensor) -> torch.Tensor:
 
 
 class ToFloat(nn.Module):
-
     @staticmethod
     def forward(image: torch.Tensor):
         return to_float(image)
