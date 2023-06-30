@@ -124,10 +124,7 @@ class AutoGeometricWithCoords(TransformWithCoordsModule):
             Prob(RandomAffineWithCoords(shear=(-10, 10)), p=p),
 
             # Add perspective
-            ChooseOne([
-                Prob(RandomPerspectiveWithCoords(distortion_scale=d), p=p)
-                for d in np.arange(0, 1, 0.1)
-            ]),
+            Prob(RandomPerspectiveWithCoords(distortion_scale=0.6), p=p),
 
             # Add erasing
             Prob(WithCoords(RandomErasing()), p=p),
