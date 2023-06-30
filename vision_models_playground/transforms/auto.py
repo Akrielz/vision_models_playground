@@ -9,6 +9,7 @@ from vision_models_playground.transforms.base import TransformWithCoordsModule
 from vision_models_playground.transforms.choose_one import ChooseOne
 from vision_models_playground.transforms.clamp import ClampWithCoords
 from vision_models_playground.transforms.compose import ComposeGeneral, ComposeRandomOrder
+from vision_models_playground.transforms.conversions import StandardToUnitWrapper
 from vision_models_playground.transforms.probability_transform import Prob
 from vision_models_playground.transforms.random_affine import RandomAffineWithCoords
 from vision_models_playground.transforms.random_horizontal_flip import RandomHorizontalFlipWithCoords
@@ -19,7 +20,7 @@ from vision_models_playground.transforms.resize import ResizeWithCoords
 from vision_models_playground.transforms.transform import WithCoords
 
 
-class AutoTransformWithCoordinates(TransformWithCoordsModule):
+class AutoTransformWithCoords(TransformWithCoordsModule):
     def __init__(
             self,
             size: Tuple[int, int],
@@ -32,8 +33,8 @@ class AutoTransformWithCoordinates(TransformWithCoordsModule):
         self.prob_photometric = prob_photometric
         self.prob_geometric = prob_geometric
 
-        self.photometric_transforms = AutoPhotometricWithCoordinates(p=prob_photometric)
-        self.geometric_transforms = AutoGeometricWithCoordinates(p=prob_geometric, size=size)
+        self.photometric_transforms = AutoPhotometricWithCoords(p=prob_photometric)
+        self.geometric_transforms = AutoGeometricWithCoords(p=prob_geometric, size=size)
 
         self.transform = ComposeGeneral([
             self.photometric_transforms,
@@ -49,7 +50,7 @@ class AutoTransformWithCoordinates(TransformWithCoordsModule):
         return image, coords
 
 
-class AutoPhotometricWithCoordinates(TransformWithCoordsModule):
+class AutoPhotometricWithCoords(TransformWithCoordsModule):
     def __init__(self, p: float = 0.1):
         super().__init__()
 
@@ -69,10 +70,10 @@ class AutoPhotometricWithCoordinates(TransformWithCoordsModule):
             ]),
 
             # Add random posterize
-            # ChooseOne([
-            #     ProbTransform(TransformWithCoords(RandomPosterize(bits=i)), p=p)
-            #     for i in range(4, 8)
-            # ]),
+            ChooseOne([
+                Prob(WithCoords(StandardToUnitWrapper(RandomPosterize(bits=i))), p=p)
+                for i in range(4, 8)
+            ]),
 
             # Add Sharpness
             ChooseOne([
@@ -84,7 +85,7 @@ class AutoPhotometricWithCoordinates(TransformWithCoordsModule):
             Prob(WithCoords(RandomAutocontrast()), p=p),
 
             # Add Equalize
-            # Prob(WithCoords(RandomEqualize()), p=p),
+            Prob(WithCoords(StandardToUnitWrapper(RandomEqualize())), p=p),
         ])
 
     def forward(
@@ -96,7 +97,7 @@ class AutoPhotometricWithCoordinates(TransformWithCoordsModule):
         return image, coords
 
 
-class AutoGeometricWithCoordinates(TransformWithCoordsModule):
+class AutoGeometricWithCoords(TransformWithCoordsModule):
     def __init__(
             self,
             size: Tuple[int, int],

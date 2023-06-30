@@ -2,7 +2,7 @@ from typing import Tuple, Optional
 
 import numpy as np
 import torch
-from torchvision.transforms import InterpolationMode
+from torchvision.transforms import InterpolationMode, RandomRotation
 import torchvision.transforms.functional as F
 
 from vision_models_playground.transforms.base import TransformWithCoordsModule
@@ -105,7 +105,7 @@ class RandomRotationWithCoords(TransformWithCoordsModule):
 
     def _sample_angle(self):
         # sample angle uniformly from the given range using numpy
-        angle = np.random.uniform(self.degrees[0], self.degrees[1], size=(1,)).item()
+        angle = RandomRotation.get_params(self.degrees)
         return angle
 
     def forward(
