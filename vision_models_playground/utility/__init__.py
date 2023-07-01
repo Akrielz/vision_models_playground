@@ -1,6 +1,4 @@
 # Functions
-from vision_models_playground.utility.train_models import train_model_classifier
-from vision_models_playground.utility.train_models import train_model
 from vision_models_playground.utility.visualize import display_images_on_grid
 from vision_models_playground.utility.visualize import display_image
 from vision_models_playground.utility.masks import create_triangular_mask
@@ -8,8 +6,6 @@ from vision_models_playground.utility.functions import exists
 from vision_models_playground.utility.functions import default
 from vision_models_playground.utility.functions import get_number_of_parameters
 # Functions
-from vision_models_playground.utility.train_models import train_model_classifier
-from vision_models_playground.utility.train_models import train_model
 from vision_models_playground.utility.visualize import display_images_on_grid
 from vision_models_playground.utility.visualize import display_image
 from vision_models_playground.utility.masks import create_triangular_mask

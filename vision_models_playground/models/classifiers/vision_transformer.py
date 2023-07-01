@@ -8,7 +8,7 @@ from einops.layers.torch import Rearrange
 
 from vision_models_playground.components.attention import TransformerEncoder
 from vision_models_playground.datasets.datasets import get_cifar10_dataset
-from vision_models_playground.utility.train_models import train_model_classifier
+from vision_models_playground.train.train_classifier import train_model_classifier
 
 
 class VisionTransformer(nn.Module):

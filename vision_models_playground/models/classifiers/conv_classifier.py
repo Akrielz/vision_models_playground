@@ -4,7 +4,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from vision_models_playground.datasets.datasets import get_cifar10_dataset
-from vision_models_playground.utility.train_models import train_model_classifier
+from vision_models_playground.train.train_classifier import train_model_classifier
 
 
 class ConvolutionalClassifier(nn.Module):

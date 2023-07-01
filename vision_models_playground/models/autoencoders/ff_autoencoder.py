@@ -5,7 +5,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from vision_models_playground.datasets.datasets import get_mnist_dataset, to_autoencoder_dataset
-from vision_models_playground.utility.train_models import train_model
+from vision_models_playground.train.train_models import train_model
 
 
 class FeedForwardAutoencoder(nn.Module):

@@ -7,7 +7,7 @@ from vision_models_playground.components.convolutions.conv_block import ConvBloc
 from vision_models_playground.components.convolutions.residual_block import ResidualBlock
 from vision_models_playground.components.convolutions.bottleneck_block import BottleneckBlock
 from vision_models_playground.datasets.datasets import get_cifar10_dataset
-from vision_models_playground.utility.train_models import train_model_classifier
+from vision_models_playground.train.train_classifier import train_model_classifier
 
 
 class ResNet(nn.Module):

@@ -10,7 +10,7 @@ from vision_models_playground.components.attention import TransformerEncoder, Fe
 from vision_models_playground.components.attention.attend import Attend
 from vision_models_playground.components.position_embedding import FourierEmbedding
 from vision_models_playground.datasets.datasets import get_cifar10_dataset
-from vision_models_playground.utility.train_models import train_model_classifier
+from vision_models_playground.train.train_classifier import train_model_classifier
 
 
 class Perceiver(nn.Module):

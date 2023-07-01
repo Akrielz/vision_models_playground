@@ -3,10 +3,16 @@ import pickle
 from typing import Literal, Tuple, Dict, Any, List
 
 import torch
+from PIL.Image import Image
 from einops import repeat
+from torch import nn
 from torch.utils.data import Dataset
-from torchvision.transforms import Compose, Resize, ToTensor
+from torchvision.transforms import ToTensor
 from torchvision.datasets import VOCDetection
+
+from vision_models_playground.transforms.compose import ComposeGeneral
+from vision_models_playground.transforms.resize import ResizeWithCoords
+from vision_models_playground.transforms.transform import WithCoords
 
 
 class YoloPascalVocDataset(Dataset):
@@ -54,7 +60,10 @@ class YoloPascalVocDataset(Dataset):
 
         # Create the transform, but don't apply it yet because the VocDetection dataset does not
         # work with transforms, so we will apply it manually
-        self.transform = Compose([ToTensor(), Resize(image_size, antialias=True)])
+        self.transform = ComposeGeneral([
+            WithCoords(ToTensor()),
+            ResizeWithCoords(image_size, antialias=True)
+        ])
         self.raw_dataset = VOCDetection(root=root, year=year, image_set=phase, download=download)
 
         # Get the class map
@@ -103,29 +112,101 @@ class YoloPascalVocDataset(Dataset):
     def __len__(self):
         return len(self.raw_dataset)
 
-    def _get_bounding_boxes(
-            self,
-            target: Dict[str, Any]
-    ) -> List[Tuple[Dict[str, int], int]]:
-        original_width = int(target['annotation']['size']['width'])
-        original_height = int(target['annotation']['size']['height'])
-        x_scale = self.image_size[0] / original_width
-        y_scale = self.image_size[1] / original_height
+    @staticmethod
+    def _extract_objects_from_target(target: Dict) -> Tuple[List[Tuple], List[str]]:
+        """
+        Extracts the objects from the target dictionary
+        """
 
-        boxes = []
+        bboxes = []
+        classes = []
         for obj in target['annotation']['object']:
-            box = obj['bndbox']
-            coords = {
-                'x_min': int(float(box['xmin']) * x_scale),
-                'y_min': int(float(box['ymin']) * y_scale),
-                'x_max': int(float(box['xmax']) * x_scale),
-                'y_max': int(float(box['ymax']) * y_scale),
-            }
+            bbox = obj['bndbox']
+            x_min = int(bbox['xmin'])
+            y_min = int(bbox['ymin'])
+            x_max = int(bbox['xmax'])
+            y_max = int(bbox['ymax'])
             class_name = obj['name']
-            class_id = self.class_map[class_name]
-            boxes.append((coords, class_id))
 
-        return boxes
+            bboxes.append((x_min, y_min, x_max, y_max))
+            classes.append(class_name)
+
+        return bboxes, classes
+
+    @staticmethod
+    def _bboxes_to_coords(bboxes: List[Tuple[int, int, int, int]]) -> torch.Tensor:
+        """
+        Converts the objects to coordinates
+        """
+        coords = []
+        for bbox in bboxes:
+            x_min, y_min, x_max, y_max = bbox
+            coords.append([x_min, y_min])
+            coords.append([x_min, y_max])
+            coords.append([x_max, y_min])
+            coords.append([x_max, y_max])
+
+        return torch.tensor(coords)
+
+    @staticmethod
+    def _coords_to_bboxes(coords: torch.Tensor) -> List[Tuple[int, int, int, int]]:
+        """
+        Converts the coordinates to objects
+        """
+        bboxes = []
+        for i in range(0, len(coords), 4):
+            x_min = coords[i:i+4, 0].min()
+            y_min = coords[i:i+4, 1].min()
+            x_max = coords[i:i+4, 0].max()
+            y_max = coords[i:i+4, 1].max()
+            bboxes.append((x_min, y_min, x_max, y_max))
+
+        # Cast all the bboxes to int
+        bboxes = [(int(x_min), int(y_min), int(x_max), int(y_max)) for x_min, y_min, x_max, y_max in bboxes]
+
+        return bboxes
+
+    def _bboxes_and_class_to_objects(self, bboxes: List[Tuple], class_names: List[str]) -> List[Dict[str, int]]:
+        objects = []
+        for bbox, class_name in zip(bboxes, class_names):
+            class_id = self.class_map[class_name]
+            obj = {
+                'x_min': bbox[0],
+                'y_min': bbox[1],
+                'x_max': bbox[2],
+                'y_max': bbox[3],
+                'class_id': class_id,
+            }
+            objects.append(obj)
+
+        return objects
+
+    def _apply_transform(
+            self,
+            image: Image,
+            target: Dict[str, Any],
+            transform: nn.Module
+    ) -> Tuple[torch.Tensor, List[Dict[str, int]]]:
+        """
+        Applies the transform to the image and target
+        """
+
+        # Extract the objects from the target
+        bboxes, classes = self._extract_objects_from_target(target)
+
+        # Convert the objects to coordinates
+        coords = self._bboxes_to_coords(bboxes)
+
+        # Apply the transform to the image and coordinates
+        image, coords = transform(image, coords)
+
+        # Convert the coordinates back to objects
+        bboxes = self._coords_to_bboxes(coords)
+
+        # Convert the objects to the target format
+        objects = self._bboxes_and_class_to_objects(bboxes, classes)
+
+        return image, objects
 
     @property
     def cell_size(self):
@@ -136,8 +217,13 @@ class YoloPascalVocDataset(Dataset):
 
     def __getitem__(self, idx: int):
         image, target = self.raw_dataset[idx]
-        image = self.transform(image)
+        image, target = self._apply_transform(image, target, self.transform)
+        labels = self._compute_labels(target)
 
+        return image, labels
+
+    def _compute_labels(self, target: List[Dict[str, int]]):
+        # Get the grid size
         grid_size_x, grid_size_y = self.cell_size
 
         # Get the boxes and labels
@@ -146,7 +232,11 @@ class YoloPascalVocDataset(Dataset):
 
         bbox_grid_index = {}  # (row, col) -> (bbox_index)
         class_grid_ids = {}  # (row, col) -> (class_id)
-        for i, (box, class_id) in enumerate(self._get_bounding_boxes(target)):
+
+        for i, box in enumerate(target):
+            # Get the class id
+            class_id = box['class_id']
+
             # Add the label to the list
             mid_x = (box['x_min'] + box['x_max']) // 2
             mid_y = (box['y_min'] + box['y_max']) // 2
@@ -178,11 +268,11 @@ class YoloPascalVocDataset(Dataset):
 
             # Compute the bounding box
             bbox_info = torch.tensor([
-                (mid_x - col * grid_size_x) / self.image_size[0],     # x coord relative to grid cell relative to image
-                (mid_y - row * grid_size_y) / self.image_size[1],     # y coord relative to grid cell relative to image
-                (box['x_max'] - box['x_min']) / self.image_size[0],   # Width relative to image
-                (box['y_max'] - box['y_min']) / self.image_size[1],   # Height relative to image
-                1.0                                                   # Confidence
+                (mid_x - col * grid_size_x) / self.image_size[0],  # x coord relative to grid cell relative to image
+                (mid_y - row * grid_size_y) / self.image_size[1],  # y coord relative to grid cell relative to image
+                (box['x_max'] - box['x_min']) / self.image_size[0],  # Width relative to image
+                (box['y_max'] - box['y_min']) / self.image_size[1],  # Height relative to image
+                1.0  # Confidence
             ])
 
             # Repeat the bounding box such that it avoids overwriting the previous one intel, but also
@@ -191,8 +281,7 @@ class YoloPascalVocDataset(Dataset):
             bbox_grid_index[(row, col)] = bbox_index + 1
 
         labels = torch.cat([bounding_box_labels, class_labels], dim=-1)
-
-        return image, labels
+        return labels
 
 
 def main():
