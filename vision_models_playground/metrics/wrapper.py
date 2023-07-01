@@ -90,8 +90,8 @@ class YoloV1MeanAveragePrecision(torchmetrics.Metric):
             class_target = torch.argmax(class_target, dim=-1)  # Shape: [num_objects]
 
             # Repeat the class for each box
-            class_pred = repeat(class_pred, 'c -> c n', n=self.num_bounding_boxes)[mask_box]  # Shape: [num_objects, num_classes]
-            class_target = repeat(class_target, 'c -> c n', n=self.num_bounding_boxes)[mask_box]  # Shape: [num_objects, num_classes]
+            class_pred = repeat(class_pred, 'c -> c n', n=self.num_bounding_boxes)[mask_box]  # Shape: [class, num_boxes]
+            class_target = repeat(class_target, 'c -> c n', n=self.num_bounding_boxes)[mask_box]  # Shape: [class, num_boxes]
 
             # Create the expected list dicts
             predicted_output = {
