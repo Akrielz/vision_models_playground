@@ -44,6 +44,32 @@ class YoloPascalVocDataset(Dataset):
             grid_size: int = 7,
             download: bool = False
     ):
+        """
+        Arguments
+        ---------
+
+        root: str = './data'
+            Root directory where the dataset is stored
+
+        phase: Literal['train', 'val'] = 'train'
+            Phase of the dataset to use
+
+        year: str = '2012'
+            Year of the dataset to use
+
+        image_size: Tuple[int, int] = (448, 448)
+            Size of the images to use. This is [height, width]
+
+        num_bounding_boxes: int = 2
+            Number of bounding boxes per cell
+
+        grid_size: int = 7
+            Size of the grid to use
+
+        download: bool = False
+            Whether to download the dataset if it is not found
+        """
+
         super().__init__()
 
         # Save the data
@@ -211,7 +237,7 @@ class YoloPascalVocDataset(Dataset):
     @property
     def cell_size(self):
         """
-        Returns the size of each cell in the grid as a tuple (grid_size_x, grid_size_y)
+        Returns the size of each cell in the grid as a tuple (grid_size_y, grid_size_x)
         """
         return self.image_size[0] // self.grid_size, self.image_size[1] // self.grid_size
 
@@ -224,7 +250,7 @@ class YoloPascalVocDataset(Dataset):
 
     def _compute_labels(self, target: List[Dict[str, int]]):
         # Get the grid size
-        grid_size_x, grid_size_y = self.cell_size
+        grid_size_y, grid_size_x = self.cell_size
 
         # Get the boxes and labels
         class_labels = torch.zeros(self.class_shape)
@@ -234,6 +260,12 @@ class YoloPascalVocDataset(Dataset):
         class_grid_ids = {}  # (row, col) -> (class_id)
 
         for i, box in enumerate(target):
+            # Compute the area of the box
+            area = (box['x_max'] - box['x_min']) * (box['y_max'] - box['y_min'])
+
+            if area < 1:
+                continue
+
             # Get the class id
             class_id = box['class_id']
 
