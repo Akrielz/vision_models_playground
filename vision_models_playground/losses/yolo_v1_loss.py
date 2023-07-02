@@ -1,3 +1,5 @@
+from typing import Literal
+
 import torch
 from torch import nn
 
@@ -45,6 +47,7 @@ class YoloV1Loss(nn.Module):
             weight_no_obj: float = 0.5,
             num_bounding_boxes: int = 2,
             num_classes: int = 20,
+            reduction: Literal['mean', 'sum'] = 'mean',
     ):
         super().__init__()
 
@@ -60,6 +63,8 @@ class YoloV1Loss(nn.Module):
 
         # I know the paper proposes mse for classes too, but I think this is better
         self.ce_sum = nn.CrossEntropyLoss(reduction='sum')
+
+        self.reduction = reduction
 
     def forward(self, predicted: torch.Tensor, target: torch.Tensor):
         """
@@ -132,7 +137,10 @@ class YoloV1Loss(nn.Module):
         # Compute the total loss
         total_loss = bbox_loss + confidence_loss + class_loss
 
-        return total_loss / batch_size
+        if self.reduction == 'mean':
+            total_loss = total_loss / batch_size
+
+        return total_loss
 
 
 def main():
