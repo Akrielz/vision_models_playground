@@ -7,6 +7,7 @@ import torch
 import torchmetrics
 from colorama import Fore
 from torch import nn
+from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
@@ -111,14 +112,14 @@ class Trainer:
             metrics = []
 
         # Get train loader
-        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         train_metrics = metrics
 
         # Get test loader
         test_loader = None
-        test_metrics = None
+        test_metrics = []
         if test_dataset is not None:
-            test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+            test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
             test_metrics = deepcopy(metrics)
 
         # If save_dir is None, save in current directory
@@ -157,23 +158,23 @@ class Trainer:
         self.writer = SummaryWriter(log_dir=save_dir)
 
         # Add a loss tracker
-        self.train_loss_tracker = LossTracker(loss_fn)
-        self.test_loss_tracker = LossTracker(loss_fn)
-
-        # Move to device all the necessary things
-        self.__move_to_device()
+        self.train_metrics.append(LossTracker(loss_fn))
+        self.test_metrics.append(LossTracker(loss_fn))
 
         # Set up the monitor metric
         self._monitor_metric = self.__setup_monitor_metric()
         self._monitor_comparator = lambda x, y: x < y if self.monitor_metric_mode == 'min' else x > y
 
+        # Move to device all the necessary things
+        self.__move_to_device()
+
     def __setup_monitor_metric(self):
         if self.monitor_metric_name == 'loss':
-            return self.test_loss_tracker
+            return deepcopy(self.test_metrics[-1])
 
         for metric in self.test_metrics:
             if metric.__repr__()[:-2] == self.monitor_metric_name:
-                return metric
+                return deepcopy(metric)
 
         raise ValueError(f'Could not find metric with name {self.monitor_metric_name}')
 
@@ -186,9 +187,8 @@ class Trainer:
 
         for metric in self.test_metrics:
             metric.to(self.device)
-
-        self.train_loss_tracker.to(self.device)
-        self.test_loss_tracker.to(self.device)
+            
+        self._monitor_metric.to(self.device)
 
     def train(self, num_epochs: int):
         # train model
@@ -204,12 +204,11 @@ class Trainer:
             self,
             epoch: int,
             metrics: List[torchmetrics.Metric],
-            loader: torch.utils.data.DataLoader,
+            loader: DataLoader,
             color: Union[int, str],
             phase: Literal['Train', 'Test'],
-            loss_tracker: LossTracker,
     ):
-        self.__init_phase(metrics, phase)
+        self.__init_phase(phase)
 
         progress_bar = tqdm(loader)
         for i, (data, target) in enumerate(progress_bar):
@@ -230,29 +229,25 @@ class Trainer:
             # Update metrics
             for metric in metrics:
                 metric.update(output, target)
-
-            # Update the loss tracker
-            loss_tracker.update(loss.detach().cpu().item(), num_samples=data.shape[0])
+                
+            # Update the monitor metric
+            if phase == 'Test':
+                self._monitor_metric.update(output, target)
 
             # Print progress
             if i % self.print_every_x_steps == 0:
-                self.__update_description(epoch, i, metrics, loss, color, phase, progress_bar, loss_tracker)
+                self.__update_description(epoch, i, metrics, loss, color, phase, progress_bar)
 
-        # Save model
-        if phase == 'Test':
-            self.__save_model()
-
-    def __init_phase(self, metrics: List[torchmetrics.Metric], phase: Literal['Train', 'Test']):
+    def __init_phase(self, phase: Literal['Train', 'Test']):
         # Set the model to train or eval mode
         if phase == 'Train':
             self.model.train()
         else:
             self.model.eval()
 
-        # Reset all metrics for test phase to make sure the final computed value is correct
+        # Reset the monitor metrics, to make sure at the end of the epoch we have the correct value
         if phase == 'Test':
-            for metric in metrics:
-                metric.reset()
+            self._monitor_metric.reset()
 
     def __prepare_metric_log(
             self,
@@ -284,7 +279,6 @@ class Trainer:
     def __prepare_loss_log(
             self,
             loss: torch.Tensor,
-            loss_tracker: LossTracker,
             phase: Literal['Train', 'Test'],
             step,
     ) -> str:
@@ -295,12 +289,6 @@ class Trainer:
         loss_name = "Loss" if len(self.loss_fn.__repr__()) > 30 else self.loss_fn.__repr__()[:-2]
         loss_log = f'{loss_name}: {loss_item:.4f} | '
         self.writer.add_scalar(f'{phase}/{loss_name}', loss_item, step)
-
-        # Process the tracked loss
-        loss_tracked = loss_tracker.compute()
-        loss_name = "LossTracked"
-        loss_log += f'{loss_name}: {loss_tracked:.4f}'
-        self.writer.add_scalar(f'{phase}/{loss_name}', loss_tracked, step)
 
         return loss_log
 
@@ -313,13 +301,12 @@ class Trainer:
             color: Union[int, str],
             phase: Literal['Train', 'Test'],
             progress_bar: tqdm,
-            loss_tracker: LossTracker,
     ):
         step = epoch * len(progress_bar) + i
 
         # Prepare metric log
         metric_log = self.__prepare_metric_log(metrics, phase, step)
-        loss_log = self.__prepare_loss_log(loss, loss_tracker, phase, step)
+        loss_log = self.__prepare_loss_log(loss, phase, step)
 
         description = color + f"{phase} Epoch: {epoch}, Step: {i} | {loss_log} | {metric_log}"
         progress_bar.set_description_str(description, refresh=False)
@@ -335,8 +322,9 @@ class Trainer:
             torch.save(self.model.state_dict(), f'{self.save_dir}/best.pt')
 
     def __train_epoch(self, epoch: int):
-        self.__epoch(epoch, self.train_metrics, self.train_loader, Fore.GREEN, 'Train', self.train_loss_tracker)
+        self.__epoch(epoch, self.train_metrics, self.train_loader, Fore.GREEN, 'Train')
 
     @torch.no_grad()
     def __test_epoch(self, epoch: int):
-        self.__epoch(epoch, self.test_metrics, self.test_loader, Fore.YELLOW, 'Test', self.test_loss_tracker)
+        self.__epoch(epoch, self.test_metrics, self.test_loader, Fore.YELLOW, 'Test')
+        self.__save_model()
