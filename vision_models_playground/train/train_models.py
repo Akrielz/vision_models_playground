@@ -209,10 +209,13 @@ class Trainer:
             phase: Literal['Train', 'Test'],
             loss_tracker: LossTracker,
     ):
+        self.__init_phase(metrics, phase)
+
         progress_bar = tqdm(loader)
         for i, (data, target) in enumerate(progress_bar):
             # Forward
             data, target = data.to(self.device), target.to(self.device)
+
             output = self.model(data)
 
             # Compute loss
@@ -238,6 +241,18 @@ class Trainer:
         # Save model
         if phase == 'Test':
             self.__save_model()
+
+    def __init_phase(self, metrics: List[torchmetrics.Metric], phase: Literal['Train', 'Test']):
+        # Set the model to train or eval mode
+        if phase == 'Train':
+            self.model.train()
+        else:
+            self.model.eval()
+
+        # Reset all metrics for test phase to make sure the final computed value is correct
+        if phase == 'Test':
+            for metric in metrics:
+                metric.reset()
 
     def __prepare_metric_log(
             self,
