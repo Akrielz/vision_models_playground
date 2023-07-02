@@ -308,7 +308,11 @@ class Trainer:
         metric_log = self.__prepare_metric_log(metrics, phase, step)
         loss_log = self.__prepare_loss_log(loss, phase, step)
 
-        description = color + f"{phase} Epoch: {epoch}, Step: {i} | {loss_log} | {metric_log}"
+        phase_padded = phase
+        if phase_padded == 'Test':
+            phase_padded = f'{phase_padded} '
+
+        description = color + f"{phase_padded} Epoch: {epoch}, Step: {i} | {loss_log} | {metric_log}"
         progress_bar.set_description_str(description, refresh=False)
 
     def __save_model(self):
