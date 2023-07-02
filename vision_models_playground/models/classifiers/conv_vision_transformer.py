@@ -195,7 +195,7 @@ if __name__ == '__main__':
         padding_kv=[1, 1],
         padding_q=[1, 1],
         method=['conv', 'conv'],
-    ).cuda()
+    )
 
     # print number of params of the model
     print(f"Number of params: {get_number_of_parameters(model) / (1024 ** 2):.3f} M")

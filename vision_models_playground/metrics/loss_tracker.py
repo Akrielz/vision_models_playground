@@ -8,7 +8,8 @@ class LossTracker(Metric):
         super().__init__()
 
         reduction = loss_fn.reduction
-        assert reduction == 'mean' or reduction == 'sum', f"reduction must be 'mean' or 'sum', but is {reduction}"
+        assert reduction == 'mean' or reduction == 'sum' or reduction == 'none', \
+            f'Expected reduction to be "mean", "sum" or "none" but got {reduction}'
 
         # Add the reduction to the state_dict, so that it can be restored correctly
         self.reduction = reduction

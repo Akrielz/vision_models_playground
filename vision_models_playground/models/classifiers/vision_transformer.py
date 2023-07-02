@@ -94,7 +94,7 @@ def main():
         emb_dropout=0.2,
         apply_rotary_emb=True,
         pool="cls",
-    ).cuda()
+    )
     train_dataset, test_dataset = get_cifar10_dataset()
     train_model_classifier(model, train_dataset, test_dataset, num_epochs=100)
 

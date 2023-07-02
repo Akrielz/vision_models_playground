@@ -172,7 +172,7 @@ def main():
         ff_hidden_dim=64,
         ff_dropout=0.,
         activation=None,
-    ).cuda()
+    )
 
     model = nn.Sequential(
         Rearrange("b c h w -> b h w c"),

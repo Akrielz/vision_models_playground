@@ -107,7 +107,7 @@ def main():
         ff_hidden_dim=512,
         ff_dropout=0.0,
         activation=None,
-    ).cuda()
+    )
 
     train_dataset, test_dataset = get_cifar10_dataset()
     train_model_classifier(model, train_dataset, test_dataset, batch_size=128)

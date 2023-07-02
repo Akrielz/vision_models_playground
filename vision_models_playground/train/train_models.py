@@ -24,6 +24,9 @@ def train_model(
         print_every_x_steps: int = 1,
         metrics: Optional[List[torchmetrics.Metric]] = None,
         save_dir: Optional[str] = None,
+        monitor_metric_name: str = 'loss',
+        monitor_metric_mode: Literal['min', 'max'] = 'min',
+        device: Optional[torch.device] = None,
 ):
     trainer = Trainer(
         model=model,
@@ -34,7 +37,10 @@ def train_model(
         batch_size=batch_size,
         print_every_x_steps=print_every_x_steps,
         metrics=metrics,
-        save_dir=save_dir
+        save_dir=save_dir,
+        monitor_metric_name=monitor_metric_name,
+        monitor_metric_mode=monitor_metric_mode,
+        device=device,
     )
 
     trainer.train(num_epochs)
@@ -56,13 +62,51 @@ class Trainer:
             monitor_metric_name: str = 'loss',
             monitor_metric_mode: Literal['min', 'max'] = 'min',
     ):
+        """
+        Arguments
+        ---------
+        model: nn.Module
+            The model to train
+
+        train_dataset: torch.utils.data.Dataset
+            The dataset to train on
+
+        test_dataset: torch.utils.data.Dataset
+            The dataset to test on
+
+        loss_fn: nn.Module
+            The loss function to use
+
+        optimizer: Optional[torch.optim.Optimizer]
+            The optimizer to use. If None, use Adam with lr=0.001
+
+        batch_size: int
+            The batch size to use
+
+        print_every_x_steps: int
+            Print the metrics every x steps
+
+        metrics: Optional[List[torchmetrics.Metric]]
+            The metrics to use
+
+        save_dir: Optional[str]
+            The directory to save the model in
+
+        device: Optional[torch.device]
+            The device to use. If None, use cuda if available
+
+        monitor_metric_name: str
+            The name of the metric to monitor
+
+        monitor_metric_mode: Literal['min', 'max']
+            The mode of the metric to monitor. Either 'min' or 'max'
+        """
+
         # Init optimizer
         if optimizer is None:
             optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-        # Init loss function
-        assert loss_fn is not None, "loss_fn must not be None"
-
+        # Init metrics
         if metrics is None:
             metrics = []
 
@@ -199,6 +243,7 @@ class Trainer:
             self,
             metrics: List[torchmetrics.Metric],
             phase: Literal['Train', 'Test'],
+            step: int,
     ) -> str:
 
         metric_log = ''
@@ -211,13 +256,13 @@ class Trainer:
                     metric_name = f'{metric.__repr__()[:-2]}_{key}'
                     metric_log += f'{metric_name}: {value:.4f} | '
 
-                    self.writer.add_scalar(f'{phase}/{metric_name}', value)
+                    self.writer.add_scalar(f'{phase}/{metric_name}', value, step)
 
             else:
                 metric_name = f'{metric.__repr__()[:-2]}'
                 metric_log += f'{metric_name}: {metric_computed:.4f} | '
 
-                self.writer.add_scalar(f'{phase}/{metric_name}', metric_computed)
+                self.writer.add_scalar(f'{phase}/{metric_name}', metric_computed, step)
 
         return metric_log
 
@@ -226,6 +271,7 @@ class Trainer:
             loss: torch.Tensor,
             loss_tracker: LossTracker,
             phase: Literal['Train', 'Test'],
+            step,
     ) -> str:
 
         loss_item = loss.detach().cpu().item()
@@ -233,13 +279,13 @@ class Trainer:
         # Process the loss
         loss_name = "Loss" if len(self.loss_fn.__repr__()) > 30 else self.loss_fn.__repr__()[:-2]
         loss_log = f'{loss_name}: {loss_item:.4f} | '
-        self.writer.add_scalar(f'{phase}/{loss_name}', loss_item)
+        self.writer.add_scalar(f'{phase}/{loss_name}', loss_item, step)
 
         # Process the tracked loss
         loss_tracked = loss_tracker.compute()
-        loss_name = "Loss Tracked"
+        loss_name = "LossTracked"
         loss_log += f'{loss_name}: {loss_tracked:.4f}'
-        self.writer.add_scalar(f'{phase}/{loss_name}', loss_tracked)
+        self.writer.add_scalar(f'{phase}/{loss_name}', loss_tracked, step)
 
         return loss_log
 
@@ -254,9 +300,11 @@ class Trainer:
             progress_bar: tqdm,
             loss_tracker: LossTracker,
     ):
+        step = epoch * len(progress_bar) + i
+
         # Prepare metric log
-        metric_log = self.__prepare_metric_log(metrics, phase)
-        loss_log = self.__prepare_loss_log(loss, loss_tracker, phase)
+        metric_log = self.__prepare_metric_log(metrics, phase, step)
+        loss_log = self.__prepare_loss_log(loss, loss_tracker, phase, step)
 
         description = color + f"{phase} Epoch: {epoch}, Step: {i} | {loss_log} | {metric_log}"
         progress_bar.set_description_str(description, refresh=False)

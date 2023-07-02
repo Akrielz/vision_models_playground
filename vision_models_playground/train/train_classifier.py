@@ -40,4 +40,17 @@ def train_model_classifier(
             F1Score(**metrics_kwargs),
         ]
 
-    train_model(model, train_dataset, test_dataset, loss_fn, optimizer, num_epochs, batch_size, print_every_x_steps, metrics)
+    train_model(
+        model,
+        train_dataset,
+        test_dataset,
+        loss_fn,
+        optimizer,
+        num_epochs,
+        batch_size,
+        print_every_x_steps,
+        metrics,
+        device=None,
+        monitor_metric_name='MulticlassAccuracy',
+        monitor_metric_mode='max'
+    )

@@ -50,7 +50,7 @@ def main():
         input_dim=32 * 32 * 3,
         hidden_dims=[256, 128],
         num_classes=10,
-    ).cuda()
+    )
     train_dataset, test_dataset = get_cifar10_dataset()
     train_model_classifier(model, train_dataset, test_dataset, num_epochs=100)
 

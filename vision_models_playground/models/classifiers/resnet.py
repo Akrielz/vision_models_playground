@@ -138,7 +138,7 @@ def build_resnet_152(num_classes: int = 10, in_channels: int = 3):
 
 
 def main():
-    model = build_resnet_50().cuda()
+    model = build_resnet_50()
 
     dataset_train, dataset_test = get_cifar10_dataset()
     train_model_classifier(model, dataset_train, dataset_test)

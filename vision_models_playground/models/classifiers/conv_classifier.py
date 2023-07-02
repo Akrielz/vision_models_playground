@@ -61,7 +61,7 @@ class ConvolutionalClassifier(nn.Module):
 
 
 def main():
-    model = ConvolutionalClassifier(channels=3).cuda()
+    model = ConvolutionalClassifier(channels=3)
     train_dataset, test_dataset = get_cifar10_dataset()
     train_model_classifier(model, train_dataset, test_dataset, num_epochs=100)
 
