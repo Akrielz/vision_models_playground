@@ -11,7 +11,7 @@ class LossTracker(Metric):
         assert reduction == 'mean' or reduction == 'sum', f"reduction must be 'mean' or 'sum', but is {reduction}"
 
         # Add the reduction to the state_dict, so that it can be restored correctly
-        self.add_state('reduction', reduction)
+        self.reduction = reduction
         self.add_state('loss', torch.tensor(0.0), dist_reduce_fx='sum')
         self.add_state('num_samples', torch.tensor(0), dist_reduce_fx='sum')
 

@@ -33,11 +33,11 @@ def train_model_classifier(
 
     if metrics is None:
         metrics = [
-            Accuracy(**metrics_kwargs).cuda(),
-            AveragePrecision(**metrics_kwargs).cuda(),
-            AUROC(**metrics_kwargs).cuda(),
-            Dice(**metrics_kwargs).cuda(),
-            F1Score(**metrics_kwargs).cuda()
+            Accuracy(**metrics_kwargs),
+            AveragePrecision(**metrics_kwargs),
+            AUROC(**metrics_kwargs),
+            Dice(**metrics_kwargs),
+            F1Score(**metrics_kwargs),
         ]
 
     train_model(model, train_dataset, test_dataset, loss_fn, optimizer, num_epochs, batch_size, print_every_x_steps, metrics)

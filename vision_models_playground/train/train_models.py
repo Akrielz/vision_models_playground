@@ -143,6 +143,9 @@ class Trainer:
         for metric in self.test_metrics:
             metric.to(self.device)
 
+        self.train_loss_tracker.to(self.device)
+        self.test_loss_tracker.to(self.device)
+
     def train(self, num_epochs: int):
         # train model
         for epoch in range(num_epochs):
@@ -235,7 +238,7 @@ class Trainer:
         # Process the tracked loss
         loss_tracked = loss_tracker.compute()
         loss_name = "Loss Tracked"
-        loss_log += f'{loss_name}: {loss_tracked:.4f})'
+        loss_log += f'{loss_name}: {loss_tracked:.4f}'
         self.writer.add_scalar(f'{phase}/{loss_name}', loss_tracked)
 
         return loss_log
