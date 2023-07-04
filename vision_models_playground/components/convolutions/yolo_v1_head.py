@@ -40,7 +40,7 @@ class YoloV1Head(nn.Module):
 
         super().__init__()
 
-        self.output_channels = grid_size * grid_size * num_bounding_boxes * (5 + num_classes)
+        self.output_channels = grid_size * grid_size * (num_bounding_boxes * 5 + num_classes)
 
         self.conv_block = nn.Sequential(
             nn.Conv2d(in_channels, in_channels, kernel_size=3, padding=1),

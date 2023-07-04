@@ -7,7 +7,7 @@ from torchmetrics import Accuracy, AveragePrecision, AUROC, Dice, F1Score
 
 from vision_models_playground.datasets.datasets import get_voc_detection_dataset_yolo
 from vision_models_playground.losses.yolo_v1_loss import YoloV1Loss
-from vision_models_playground.metrics.yolo_v1_class_metric_wrapper import YoloV1ClassMetricWrapper
+from vision_models_playground.metrics.wrapper import YoloV1ClassMetricWrapper
 from vision_models_playground.train.train_models import train_model
 
 
