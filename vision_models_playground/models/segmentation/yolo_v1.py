@@ -123,7 +123,7 @@ def main():
     grid_size = 7
 
     num_epochs = 130
-    batch_size = 1
+    batch_size = 8
 
     train_dataset = get_voc_detection_dataset_yolo_aug(
         num_bounding_boxes=num_bounding_boxes,
