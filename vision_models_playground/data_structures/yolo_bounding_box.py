@@ -140,6 +140,9 @@ class YoloBoundingBoxOperations:
         w = self.get_attr(bounding_boxes, 'w')
         h = self.get_attr(bounding_boxes, 'h')
 
+        w = torch.clamp(w, 0, 1)
+        h = torch.clamp(h, 0, 1)
+
         return torch.stack([x, y, torch.sqrt(w), torch.sqrt(h)], dim=-1)
 
     def compute_iou(

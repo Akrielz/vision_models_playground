@@ -1,6 +1,7 @@
 import torch
 import torchmetrics
 from einops import repeat
+from torch import argmax
 from torchmetrics.detection import MeanAveragePrecision
 
 from vision_models_playground.data_structures.yolo_bounding_box import YoloBoundingBoxOperations
@@ -30,7 +31,12 @@ class YoloV1ClassMetricWrapper(torchmetrics.Metric):
         mask_obj_per_box = self.bb_ops.compute_confidence_mask(target)
         mask_obj = mask_obj_per_box.any(dim=-1)
 
-        self.metric.update(class_pred[mask_obj], class_target[mask_obj])
+        class_pred = class_pred[mask_obj]
+        class_target = class_target[mask_obj]
+
+        class_target = argmax(class_target, dim=-1)
+
+        self.metric.update(class_pred, class_target)
 
     def compute(self):
         return self.metric.compute()

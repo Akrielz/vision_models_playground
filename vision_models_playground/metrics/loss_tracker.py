@@ -23,7 +23,11 @@ class LossTracker(Metric):
         with torch.no_grad():
             loss = self.loss_fn(pred, target)
             loss = loss.item()
-            num_samples = pred.shape[0] if self.reduction == 'sum' else 1
+
+            num_samples = pred.shape[0]
+
+            if self.reduction == 'mean':
+                loss *= num_samples
 
         # Update the state
         self.loss += loss
