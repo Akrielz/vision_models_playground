@@ -287,7 +287,7 @@ class Trainer:
 
         # Process the loss
         loss_name = "Loss" if len(self.loss_fn.__class__.__name__) > 30 else self.loss_fn.__class__.__name__
-        loss_log = f'{loss_name}: {loss_item:.4f} '
+        loss_log = f'{loss_name}: {loss_item:.4f}'
         self.writer.add_scalar(f'{phase}/{loss_name}', loss_item, step)
 
         return loss_log
