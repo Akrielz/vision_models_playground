@@ -1,3 +1,4 @@
+from einops.layers.torch import Rearrange
 from torch import nn
 
 
@@ -60,7 +61,8 @@ class YoloV1Head(nn.Module):
             nn.Flatten(),
             nn.Linear(in_channels * grid_size * grid_size, hidden_size),
             nn.LeakyReLU(negative_slope),
-            nn.Linear(hidden_size, self.output_channels)
+            nn.Linear(hidden_size, self.output_channels),
+            Rearrange('b (h w c) -> b h w c', w=grid_size, h=grid_size)
         )
 
     def forward(self, x):

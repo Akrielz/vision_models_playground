@@ -111,7 +111,7 @@ class YoloV1MeanAveragePrecision(torchmetrics.Metric):
         return predicted_per_image, target_per_image
 
     def compute(self):
-        return self.mAP.compute()['map']
+        return self.mAP.compute()
 
     def __repr__(self):
         return self.mAP.__repr__()

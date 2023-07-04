@@ -7,7 +7,7 @@ from torchmetrics import Accuracy, AveragePrecision, AUROC, Dice, F1Score
 
 from vision_models_playground.datasets.datasets import get_voc_detection_dataset_yolo
 from vision_models_playground.losses.yolo_v1_loss import YoloV1Loss
-from vision_models_playground.metrics.wrapper import YoloV1ClassMetricWrapper
+from vision_models_playground.metrics.wrapper import YoloV1ClassMetricWrapper, YoloV1MeanAveragePrecision
 from vision_models_playground.train.train_models import train_model
 
 
@@ -22,6 +22,7 @@ def train_yolo_v1(
         print_every_x_steps: int = 1,
         metrics: Optional[List[torchmetrics.Metric]] = None,
         num_bounding_boxes: int = 2,
+        device: Optional[torch.device] = None
 ):
     if train_dataset is None:
         train_dataset = get_voc_detection_dataset_yolo()[0]
@@ -49,9 +50,24 @@ def train_yolo_v1(
             F1Score(**classification_metrics_kwargs).cuda()
         ]
 
-        metrics = [
-            YoloV1ClassMetricWrapper(metric, num_bounding_boxes=num_bounding_boxes, num_classes=num_classes).cuda()
+        metrics: List[torchmetrics.Metric] = [
+            YoloV1ClassMetricWrapper(metric, num_bounding_boxes=num_bounding_boxes, num_classes=num_classes)
             for metric in classification_metrics
         ]
 
-    train_model(model, train_dataset, test_dataset, loss_fn, optimizer, num_epochs, batch_size, print_every_x_steps, metrics)
+        metrics.append(
+            YoloV1MeanAveragePrecision(num_bounding_boxes=num_bounding_boxes, num_classes=num_classes)
+        )
+
+    train_model(
+        model,
+        train_dataset,
+        test_dataset,
+        loss_fn,
+        optimizer,
+        num_epochs,
+        batch_size,
+        print_every_x_steps,
+        metrics,
+        device=device
+    )

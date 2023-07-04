@@ -65,14 +65,19 @@ def get_voc_detection_dataset_yolo(
         root: str = './data',
         year: str = '2012',
         download: bool = False,
-        num_bounding_boxes: int = 2
+        num_bounding_boxes: int = 2,
+        grid_size: int = 7
 ):
-    voc_train = YoloPascalVocDataset(
-        root=root, year=year, phase='train', download=download, num_bounding_boxes=num_bounding_boxes
-    )
-    voc_test = YoloPascalVocDataset(
-        root=root, year=year, phase='val', download=download, num_bounding_boxes=num_bounding_boxes
-    )
+    kwargs = {
+        'root': root,
+        'year': year,
+        'download': download,
+        'num_bounding_boxes': num_bounding_boxes,
+        'grid_size': grid_size
+    }
+
+    voc_train = YoloPascalVocDataset(phase='train', **kwargs)
+    voc_test = YoloPascalVocDataset(phase='val', **kwargs)
 
     return voc_train, voc_test
 
@@ -82,6 +87,7 @@ def get_voc_detection_dataset_yolo_aug(
         year: str = '2012',
         download: bool = False,
         num_bounding_boxes: int = 2,
+        grid_size: int = 7,
         aug_transform: Optional[nn.Module] = None
 ):
     kwargs = {
@@ -89,7 +95,8 @@ def get_voc_detection_dataset_yolo_aug(
         'year': year,
         'download': download,
         'num_bounding_boxes': num_bounding_boxes,
-        'aug_transform': aug_transform
+        'aug_transform': aug_transform,
+        'grid_size': grid_size
     }
     voc_train = YoloPascalVocDatasetAug(phase='train', **kwargs)
     voc_test = YoloPascalVocDatasetAug(phase='val', **kwargs)

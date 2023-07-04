@@ -4,6 +4,8 @@ import torch
 from torch import nn
 
 from vision_models_playground.components.convolutions.yolo_v1_head import YoloV1Head
+from vision_models_playground.datasets.datasets import get_voc_detection_dataset_yolo_aug, get_voc_detection_dataset_yolo
+from vision_models_playground.train.train_yolo import train_yolo_v1
 
 
 class YoloV1(nn.Module):
@@ -112,9 +114,42 @@ def build_yolo_v1(
     )
 
 
+def main():
+    in_channels = 3
+    num_bounding_boxes = 2
+    grid_size = 7
+
+    num_epochs = 130
+    batch_size = 16
+
+    train_dataset = get_voc_detection_dataset_yolo_aug(
+        num_bounding_boxes=num_bounding_boxes,
+        grid_size=grid_size
+    )[0]
+    test_dataset = get_voc_detection_dataset_yolo(
+        num_bounding_boxes=num_bounding_boxes,
+        grid_size=grid_size
+    )[1]
+
+    num_classes = len(train_dataset.classes)
+
+    model = build_yolo_v1(
+        in_channels=in_channels,
+        num_classes=num_classes,
+        num_bounding_boxes=num_bounding_boxes,
+        grid_size=grid_size
+    )
+
+    train_yolo_v1(
+        model=model,
+        train_dataset=train_dataset,
+        test_dataset=test_dataset,
+        num_epochs=num_epochs,
+        batch_size=batch_size,
+        num_bounding_boxes=num_bounding_boxes,
+        device=torch.device('cpu')
+    )
+
+
 if __name__ == '__main__':
-    model = build_yolo_v1(in_channels=3, num_classes=20)
-    print(model)
-    img = torch.randn(1, 3, 448, 448)
-    output = model(img)
-    print(output.shape)  # torch.Size([1, 30 * 7 * 7 = 1470])
+    main()
