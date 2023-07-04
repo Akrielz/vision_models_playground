@@ -84,7 +84,8 @@ class YoloV1Loss(nn.Module):
             The loss between the predicted and target tensors.
         """
 
-        assert predicted.shape == target.shape, f'Predicted and target tensors must have the same shape. Got {predicted.shape} and {target.shape}'
+        assert predicted.shape == target.shape, \
+            f'Predicted and target tensors must have the same shape. Got {predicted.shape} and {target.shape}'
 
         # Save batch_size info
         batch_size = predicted.shape[0]

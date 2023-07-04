@@ -140,8 +140,8 @@ class YoloBoundingBoxOperations:
         w = self.get_attr(bounding_boxes, 'w')
         h = self.get_attr(bounding_boxes, 'h')
 
-        # w = torch.clamp(w, 0, 1)
-        # h = torch.clamp(h, 0, 1)
+        w = torch.sign(w) * torch.sqrt(torch.abs(w)) + 1e-6
+        h = torch.sign(h) * torch.sqrt(torch.abs(h)) + 1e-6
 
         return torch.stack([x, y, w, h], dim=-1)
 
