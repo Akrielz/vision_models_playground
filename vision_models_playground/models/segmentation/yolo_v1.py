@@ -95,6 +95,7 @@ def build_yolo_v1(
         num_classes: int,
         num_bounding_boxes: int = 2,
         grid_size: int = 7,
+        hidden_size: int = 4096
 ):
     dims = [[64], [192], [128, 256, 256, 512], [256, 512, 256, 512, 256, 512, 256, 512, 512, 1024], [512, 1024, 512, 1024]]
     kernel_size = [[7], [3], [1, 3, 1, 3], [1, 3, 1, 3, 1, 3, 1, 3, 1, 3], [1, 3, 1, 3]]
@@ -111,6 +112,8 @@ def build_yolo_v1(
         num_classes=num_classes,
         num_bounding_boxes=num_bounding_boxes,
         grid_size=grid_size,
+
+        hidden_size=hidden_size
     )
 
 
@@ -120,7 +123,7 @@ def main():
     grid_size = 7
 
     num_epochs = 130
-    batch_size = 16
+    batch_size = 1
 
     train_dataset = get_voc_detection_dataset_yolo_aug(
         num_bounding_boxes=num_bounding_boxes,
@@ -137,7 +140,8 @@ def main():
         in_channels=in_channels,
         num_classes=num_classes,
         num_bounding_boxes=num_bounding_boxes,
-        grid_size=grid_size
+        grid_size=grid_size,
+        hidden_size=1024
     )
 
     train_yolo_v1(
@@ -147,7 +151,6 @@ def main():
         num_epochs=num_epochs,
         batch_size=batch_size,
         num_bounding_boxes=num_bounding_boxes,
-        device=torch.device('cpu')
     )
 
 

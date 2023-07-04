@@ -173,7 +173,7 @@ class Trainer:
             return deepcopy(self.test_metrics[-1])
 
         for metric in self.test_metrics:
-            if metric.__class__.__name__ == self.monitor_metric_name:
+            if metric.__repr__()[:-2] == self.monitor_metric_name:
                 return deepcopy(metric)
 
         raise ValueError(f'Could not find metric with name {self.monitor_metric_name}')
@@ -263,13 +263,13 @@ class Trainer:
 
             if isinstance(metric_computed, dict):
                 for key, value in metric_computed.items():
-                    metric_name = f'{metric.__class__.__name__}_{key}'
+                    metric_name = f'{metric.__repr__()[:-2]}_{key}'
                     metric_log += f'{metric_name}: {value:.4f} | '
 
                     self.writer.add_scalar(f'{phase}/{metric_name}', value, step)
 
             else:
-                metric_name = f'{metric.__class__.__name__}'
+                metric_name = f'{metric.__repr__()[:-2]}'
                 metric_log += f'{metric_name}: {metric_computed:.4f} | '
 
                 self.writer.add_scalar(f'{phase}/{metric_name}', metric_computed, step)
@@ -286,7 +286,7 @@ class Trainer:
         loss_item = loss.detach().cpu().item()
 
         # Process the loss
-        loss_name = "Loss" if len(self.loss_fn.__class__.__name__) > 30 else self.loss_fn.__class__.__name__
+        loss_name = "Loss" if len(self.loss_fn.__repr__()[:-2]) > 30 else self.loss_fn.__repr__()[:-2]
         loss_log = f'{loss_name}: {loss_item:.4f}'
         self.writer.add_scalar(f'{phase}/{loss_name}', loss_item, step)
 
