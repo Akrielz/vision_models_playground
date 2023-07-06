@@ -1,7 +1,9 @@
 from typing import List
 
 import torch
+from einops.layers.torch import Rearrange
 from torch import nn
+from torchvision.models import ResNet50_Weights, resnet50
 
 from vision_models_playground.components.convolutions.yolo_v1_head import YoloV1Head
 from vision_models_playground.datasets.datasets import get_voc_detection_dataset_yolo_aug, get_voc_detection_dataset_yolo
@@ -90,6 +92,38 @@ class YoloV1(nn.Module):
         return nn.Sequential(*layers)
 
 
+class ResNetYoloV1(nn.Module):
+    def __init__(
+            self,
+    ):
+        super().__init__()
+
+        backbone = resnet50(weights=ResNet50_Weights.DEFAULT)
+        backbone.requires_grad_(False)
+
+        backbone.avgpool = nn.Identity()
+        backbone.fc = nn.Identity()
+
+        yolo_head = YoloV1Head(
+            in_channels=2048,
+            num_classes=20,
+            num_bounding_boxes=2,
+            grid_size=7,
+            mlp_size=1024,
+            negative_slope=0.1,
+            internal_size=1024
+        )
+
+        self.model = nn.Sequential(
+            backbone,
+            Rearrange('b (h w c) -> b c h w', h=14, w=14),
+            yolo_head
+        )
+
+    def forward(self, x: torch.Tensor):
+        return self.model(x)
+
+
 def build_yolo_v1(
         in_channels: int,
         num_classes: int,
@@ -123,26 +157,29 @@ def main():
     grid_size = 7
 
     num_epochs = 130
-    batch_size = 8
+    batch_size = 16
 
     train_dataset = get_voc_detection_dataset_yolo_aug(
         num_bounding_boxes=num_bounding_boxes,
-        grid_size=grid_size
+        grid_size=grid_size,
+        download=False
     )[0]
     test_dataset = get_voc_detection_dataset_yolo(
         num_bounding_boxes=num_bounding_boxes,
-        grid_size=grid_size
+        grid_size=grid_size,
+        download=False
     )[1]
 
     num_classes = len(train_dataset.classes)
 
-    model = build_yolo_v1(
-        in_channels=in_channels,
-        num_classes=num_classes,
-        num_bounding_boxes=num_bounding_boxes,
-        grid_size=grid_size,
-        hidden_size=1024
-    )
+    # model = build_yolo_v1(
+    #     in_channels=in_channels,
+    #     num_classes=num_classes,
+    #     num_bounding_boxes=num_bounding_boxes,
+    #     grid_size=grid_size,
+    #     hidden_size=1024
+    # )
+    model = ResNetYoloV1()
 
     train_yolo_v1(
         model=model,
