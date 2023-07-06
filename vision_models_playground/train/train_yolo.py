@@ -55,9 +55,9 @@ def train_yolo_v1(
             for metric in classification_metrics
         ]
 
-        metrics.append(
-            YoloV1MeanAveragePrecision(num_bounding_boxes=num_bounding_boxes, num_classes=num_classes)
-        )
+        # metrics.append(
+        #     YoloV1MeanAveragePrecision(num_bounding_boxes=num_bounding_boxes, num_classes=num_classes)
+        # )
 
     train_model(
         model,
