@@ -93,6 +93,11 @@ class YoloV1(nn.Module):
 
 
 class ResNetYoloV1(nn.Module):
+    """
+    This is a YOLOv1 model with a ResNet50 backbone. The main idea is to be able to use the pretrained weights
+    from the ResNet50 model and then train the YOLOv1 head from scratch.
+    """
+
     def __init__(
             self,
     ):
