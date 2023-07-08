@@ -5,21 +5,17 @@ import torchmetrics
 from torch import nn
 from torchmetrics import Accuracy, AveragePrecision, AUROC, Dice, F1Score
 
-from vision_models_playground.datasets.datasets import get_voc_detection_dataset_yolo, get_voc_detection_dataset_yolo_aug
+from vision_models_playground.datasets.datasets import get_voc_detection_dataset_yolo
+from vision_models_playground.evaluate.evaluate_models import evaluate_model
 from vision_models_playground.losses.yolo_v1_loss import YoloV1Loss
 from vision_models_playground.metrics.wrapper import YoloV1ClassMetricWrapper, YoloV1MeanAveragePrecision
-from vision_models_playground.models.segmentation.yolo_v1 import ResNetYoloV1
-from vision_models_playground.train.train_models import train_model
-from vision_models_playground.utility.config import config_wrapper
+from vision_models_playground.utility.load_models import load_best_model
 
 
-def train_yolo_v1(
+def evaluate_yolo_v1(
         model: nn.Module,
-        train_dataset: Optional[torch.utils.data.Dataset] = None,
         test_dataset: Optional[torch.utils.data.Dataset] = None,
         loss_fn: Optional[Callable] = None,
-        optimizer: Optional[torch.optim.Optimizer] = None,
-        num_epochs: int = 100,
         batch_size: int = 64,
         print_every_x_steps: int = 1,
         metrics: Optional[List[torchmetrics.Metric]] = None,
@@ -27,13 +23,10 @@ def train_yolo_v1(
         device: Optional[torch.device] = None,
         num_workers: Optional[int] = None,
 ):
-    if train_dataset is None:
-        train_dataset = get_voc_detection_dataset_yolo()[0]
-
     if test_dataset is None:
         test_dataset = get_voc_detection_dataset_yolo()[1]
 
-    num_classes = len(train_dataset.classes)
+    num_classes = len(test_dataset.classes)
 
     # init loss function
     if loss_fn is None:
@@ -58,60 +51,21 @@ def train_yolo_v1(
             for metric in classification_metrics
         ]
 
-    train_model(
+    evaluate_model(
         model,
-        train_dataset,
         test_dataset,
         loss_fn,
-        optimizer,
-        num_epochs,
         batch_size,
         print_every_x_steps,
         metrics,
         device=device,
-        num_workers=num_workers
+        num_workers=num_workers,
     )
 
 
 def main():
-    in_channels = 3
-    num_bounding_boxes = 2
-    grid_size = 7
-
-    num_epochs = 130
-    batch_size = 16
-
-    train_dataset = get_voc_detection_dataset_yolo_aug(
-        num_bounding_boxes=num_bounding_boxes,
-        grid_size=grid_size,
-        download=False
-    )[0]
-    test_dataset = get_voc_detection_dataset_yolo(
-        num_bounding_boxes=num_bounding_boxes,
-        grid_size=grid_size,
-        download=False
-    )[1]
-
-    num_classes = len(train_dataset.classes)
-
-    ResNetYoloV1WithConfig = config_wrapper(ResNetYoloV1)
-    model = ResNetYoloV1WithConfig(
-        in_channels=in_channels,
-        num_classes=num_classes,
-        num_bounding_boxes=num_bounding_boxes,
-        grid_size=grid_size,
-        mlp_size=1024,
-        internal_size=1024
-    )
-
-    train_yolo_v1(
-        model=model,
-        train_dataset=train_dataset,
-        test_dataset=test_dataset,
-        num_epochs=num_epochs,
-        batch_size=batch_size,
-        num_bounding_boxes=num_bounding_boxes,
-    )
+    model = load_best_model("models/train/ResNetYoloV1/2023-07-06_14-37-23")
+    evaluate_yolo_v1(model)
 
 
 if __name__ == '__main__':

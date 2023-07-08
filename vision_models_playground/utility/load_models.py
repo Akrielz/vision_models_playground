@@ -78,7 +78,7 @@ def load_best_model(
         The device to load the weights to. If None, it will be loaded to the device the model is on
     """
     config_path = f'{save_dir}/config.json'
-    weights_path = f'{save_dir}/best_model.pt'
+    weights_path = f'{save_dir}/best.pt'
 
     return load_model_from_config(config_path, weights_path, device)
 
@@ -99,6 +99,6 @@ def load_last_model(
         The device to load the weights to. If None, it will be loaded to the device the model is on
     """
     config_path = f'{save_dir}/config.json'
-    weights_path = f'{save_dir}/last_model.pt'
+    weights_path = f'{save_dir}/last.pt'
 
     return load_model_from_config(config_path, weights_path, device)

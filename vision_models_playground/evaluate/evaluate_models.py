@@ -23,6 +23,7 @@ def evaluate_model(
         metrics: Optional[List[torchmetrics.Metric]] = None,
         save_dir: Optional[str] = None,
         device: Optional[torch.device] = None,
+        num_workers: Optional[int] = None,
 ):
     evaluator = Evaluator(
         model=model,
@@ -32,7 +33,8 @@ def evaluate_model(
         print_every_x_steps=print_every_x_steps,
         metrics=metrics,
         save_dir=save_dir,
-        device=device
+        device=device,
+        num_workers=num_workers
     )
 
     evaluator.evaluate()
@@ -49,6 +51,7 @@ class Evaluator:
             metrics: Optional[List[torchmetrics.Metric]] = None,
             save_dir: Optional[str] = None,
             device: Optional[torch.device] = None,
+            num_workers: Optional[int] = None,
     ):
         """
         Arguments
@@ -82,8 +85,12 @@ class Evaluator:
         if metrics is None:
             metrics = []
 
+        # Get half of the available cores
+        if num_workers is None:
+            num_workers = os.cpu_count() // 2
+
         # Get test loader
-        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
         test_metrics = deepcopy(metrics)
 
         # If save_dir is None, save in current directory
@@ -91,7 +98,7 @@ class Evaluator:
             save_dir = '.'
 
         current_date = f'{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}'
-        save_dir = f'{save_dir}/models/{model.__class__.__name__}/{current_date}'
+        save_dir = f'{save_dir}/models/eval/{model.__class__.__name__}/{current_date}'
         save_dir = os.path.normpath(save_dir)
 
         # Create save_dir if it does not exist
@@ -131,7 +138,6 @@ class Evaluator:
     @torch.no_grad()
     def __epoch(
             self,
-            epoch: int,
             metrics: List[torchmetrics.Metric],
             loader: DataLoader,
             color: Union[int, str],
@@ -154,13 +160,15 @@ class Evaluator:
 
             # Print progress
             if i % self.print_every_x_steps == 0:
-                self.__update_description(epoch, i, metrics, loss, color, 'Test', progress_bar)
+                self.__update_description(i, metrics, loss, color, 'Test', progress_bar)
 
     def __prepare_metric_log(
             self,
             metrics: List[torchmetrics.Metric],
-            phase: Literal['Train', 'Test'],
+            phase: Literal['Test'],
             step: int,
+            delimiter: str = ' | ',
+            apply_writer: bool = True,
     ) -> str:
 
         metric_log = ''
@@ -171,13 +179,19 @@ class Evaluator:
             if isinstance(metric_computed, dict):
                 for key, value in metric_computed.items():
                     metric_name = f'{metric.__repr__()[:-2]}_{key}'
-                    metric_log += f'{metric_name}: {value:.4f} | '
+                    metric_log += f'{metric_name}: {value:.4f}{delimiter}'
+
+                    if not apply_writer:
+                        continue
 
                     self.writer.add_scalar(f'{phase}/{metric_name}', value, step)
 
             else:
                 metric_name = f'{metric.__repr__()[:-2]}'
-                metric_log += f'{metric_name}: {metric_computed:.4f} | '
+                metric_log += f'{metric_name}: {metric_computed:.4f}{delimiter}'
+
+                if not apply_writer:
+                    continue
 
                 self.writer.add_scalar(f'{phase}/{metric_name}', metric_computed, step)
 
@@ -186,7 +200,7 @@ class Evaluator:
     def __prepare_loss_log(
             self,
             loss: torch.Tensor,
-            phase: Literal['Train', 'Test'],
+            phase: Literal['Test'],
             step,
     ) -> str:
 
@@ -201,7 +215,6 @@ class Evaluator:
 
     def __update_description(
             self,
-            epoch: int,
             i: int,
             metrics: List[torchmetrics.Metric],
             loss: torch.Tensor,
@@ -209,7 +222,7 @@ class Evaluator:
             phase: Literal['Train', 'Test'],
             progress_bar: tqdm,
     ):
-        step = epoch * len(progress_bar) + i
+        step = i
 
         # Prepare metric log
         metric_log = self.__prepare_metric_log(metrics, phase, step)
@@ -219,8 +232,15 @@ class Evaluator:
         if phase_padded == 'Test':
             phase_padded = f'{phase_padded} '
 
-        description = color + f"{phase_padded} Epoch: {epoch}, Step: {i} | {loss_log} | {metric_log}"
+        description = color + f"{phase_padded} Step: {i} | {loss_log} | {metric_log}"
         progress_bar.set_description_str(description, refresh=False)
+
+    def create_report(self):
+        metric_log = self.__prepare_metric_log(self.test_metrics, 'Test', 0, delimiter='  \n', apply_writer=False)
+
+        # Write in file
+        with open(f'{self.save_dir}/report.md', 'w') as f:
+            f.write(metric_log)
 
     @torch.no_grad()
     def __test_epoch(self):
@@ -229,3 +249,4 @@ class Evaluator:
     def evaluate(self):
         self.__test_epoch()
         self.writer.close()
+        self.create_report()

@@ -29,6 +29,7 @@ def train_model(
         monitor_metric_name: str = 'loss',
         monitor_metric_mode: Literal['min', 'max'] = 'min',
         device: Optional[torch.device] = None,
+        num_workers: Optional[int] = None,
 ):
     trainer = Trainer(
         model=model,
@@ -43,6 +44,7 @@ def train_model(
         monitor_metric_name=monitor_metric_name,
         monitor_metric_mode=monitor_metric_mode,
         device=device,
+        num_workers=num_workers
     )
 
     trainer.train(num_epochs)
@@ -63,6 +65,7 @@ class Trainer:
             device: Optional[torch.device] = None,
             monitor_metric_name: str = 'loss',
             monitor_metric_mode: Literal['min', 'max'] = 'min',
+            num_workers: Optional[int] = None,
     ):
         """
         Arguments
@@ -106,21 +109,25 @@ class Trainer:
 
         # Init optimizer
         if optimizer is None:
-            optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+            optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 
         # Init metrics
         if metrics is None:
             metrics = []
 
+        # Get half of the available cores
+        if num_workers is None:
+            num_workers = os.cpu_count() // 2
+
         # Get train loader
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
         train_metrics = metrics
 
         # Get test loader
         test_loader = None
         test_metrics = []
         if test_dataset is not None:
-            test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+            test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
             test_metrics = deepcopy(metrics)
 
         # If save_dir is None, save in current directory
@@ -128,7 +135,7 @@ class Trainer:
             save_dir = '.'
 
         current_date = f'{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}'
-        save_dir = f'{save_dir}/models/{model.__class__.__name__}/{current_date}'
+        save_dir = f'{save_dir}/models/train/{model.__class__.__name__}/{current_date}'
         save_dir = os.path.normpath(save_dir)
 
         # Create save_dir if it does not exist
