@@ -145,6 +145,47 @@ class YoloBoundingBoxOperations:
 
         return torch.stack([x, y, w, h], dim=-1)
 
+    def get_window_absolute(self, bounding_boxes: torch.Tensor):
+        self._check_input(bounding_boxes)
+        x = self.get_attr(bounding_boxes, 'x')
+        y = self.get_attr(bounding_boxes, 'y')
+        w = self.get_attr(bounding_boxes, 'w')
+        h = self.get_attr(bounding_boxes, 'h')
+
+        # the above values are relative to the grid cell
+        # we need to convert them to absolute values
+        grid_shape = bounding_boxes.shape[-3:-1]
+        grid_height = grid_shape[0]
+        grid_width = grid_shape[1]
+
+        cell_height = 1 / grid_shape[0]
+        cell_width = 1 / grid_shape[1]
+
+        cell_indexes = torch.stack(torch.meshgrid(torch.arange(grid_height), torch.arange(grid_width), indexing='ij'), dim=-1)
+        cell_indexes = cell_indexes.to(bounding_boxes.device)
+
+        offset_x = cell_indexes[..., 1] * cell_width
+        offset_y = cell_indexes[..., 0] * cell_height
+
+        offset_x = offset_x.unsqueeze(-1)
+        offset_y = offset_y.unsqueeze(-1)
+
+        x = x + offset_x
+        y = y + offset_y
+
+        return torch.stack([x, y, w, h], dim=-1)
+
+    def to_corners_absolute(self, bounding_boxes: torch.Tensor):
+        x, y, w, h = torch.unbind(self.get_window_absolute(bounding_boxes), dim=-1)
+
+        x_min = x - w / 2
+        y_min = y - h / 2
+        x_max = x + w / 2
+        y_max = y + h / 2
+
+        return torch.stack([x_min, y_min, x_max, y_max], dim=-1)
+
+
     def compute_iou(
             self,
             pred_bounding_boxes: torch.Tensor,
