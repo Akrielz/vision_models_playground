@@ -1,3 +1,4 @@
+import json
 import os
 from copy import deepcopy
 from datetime import datetime
@@ -164,6 +165,13 @@ class Trainer:
         # Set up the monitor metric
         self._monitor_metric = self.__setup_monitor_metric()
         self._monitor_comparator = lambda x, y: x < y if self.monitor_metric_mode == 'min' else x > y
+
+        # Save the config if it exists
+        config_path = f'{save_dir}/config.json'
+        config = getattr(model, '_config', None)
+        if config is not None:
+            with open(config_path, 'w') as f:
+                json.dump(config, f, indent=4)
 
         # Move to device all the necessary things
         self.__move_to_device()

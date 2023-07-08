@@ -8,6 +8,7 @@ from torchvision.models import ResNet50_Weights, resnet50
 from vision_models_playground.components.convolutions.yolo_v1_head import YoloV1Head
 from vision_models_playground.datasets.datasets import get_voc_detection_dataset_yolo_aug, get_voc_detection_dataset_yolo
 from vision_models_playground.train.train_yolo import train_yolo_v1
+from vision_models_playground.utility.config import config_wrapper
 
 
 class YoloV1(nn.Module):
@@ -134,14 +135,16 @@ def build_yolo_v1(
         num_classes: int,
         num_bounding_boxes: int = 2,
         grid_size: int = 7,
-        hidden_size: int = 4096
+        mlp_size: int = 4096
 ):
     dims = [[64], [192], [128, 256, 256, 512], [256, 512, 256, 512, 256, 512, 256, 512, 512, 1024], [512, 1024, 512, 1024]]
     kernel_size = [[7], [3], [1, 3, 1, 3], [1, 3, 1, 3, 1, 3, 1, 3, 1, 3], [1, 3, 1, 3]]
     stride = [[2], [1], [1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1]]
     max_pools = [True, True, True, True, False]
 
-    return YoloV1(
+    yolo_v1_class_with_config = config_wrapper(YoloV1)
+
+    return yolo_v1_class_with_config(
         dims=dims,
         kernel_size=kernel_size,
         stride=stride,
@@ -152,7 +155,7 @@ def build_yolo_v1(
         num_bounding_boxes=num_bounding_boxes,
         grid_size=grid_size,
 
-        mlp_size=hidden_size
+        mlp_size=mlp_size
     )
 
 
@@ -177,14 +180,15 @@ def main():
 
     num_classes = len(train_dataset.classes)
 
-    # model = build_yolo_v1(
-    #     in_channels=in_channels,
-    #     num_classes=num_classes,
-    #     num_bounding_boxes=num_bounding_boxes,
-    #     grid_size=grid_size,
-    #     hidden_size=1024
-    # )
-    model = ResNetYoloV1()
+    model = build_yolo_v1(
+        in_channels=in_channels,
+        num_classes=num_classes,
+        num_bounding_boxes=num_bounding_boxes,
+        grid_size=grid_size,
+        mlp_size=1024
+    )
+
+    # model = ResNetYoloV1()
 
     train_yolo_v1(
         model=model,
