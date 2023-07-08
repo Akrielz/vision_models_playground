@@ -24,7 +24,7 @@ class YoloV1(nn.Module):
             num_bounding_boxes: int = 2,
             grid_size: int = 7,
             negative_slope: float = 0.1,
-            hidden_size: int = 4096
+            mlp_size: int = 4096
     ):
         super().__init__()
 
@@ -40,7 +40,7 @@ class YoloV1(nn.Module):
         self.kernel_size = kernel_size
         self.stride = stride
         self.max_pools = max_pools
-        self.hidden_size = hidden_size
+        self.mlp_size = mlp_size
 
         self.layers = nn.ModuleList([
             self._build_layer(i) for i in range(len(dims))
@@ -51,7 +51,7 @@ class YoloV1(nn.Module):
             num_classes=self.num_classes,
             num_bounding_boxes=self.num_bounding_boxes,
             grid_size=self.grid_size,
-            hidden_size=self.hidden_size,
+            mlp_size=self.mlp_size,
             negative_slope=self.negative_slope,
         )
 
@@ -152,7 +152,7 @@ def build_yolo_v1(
         num_bounding_boxes=num_bounding_boxes,
         grid_size=grid_size,
 
-        hidden_size=hidden_size
+        mlp_size=hidden_size
     )
 
 
