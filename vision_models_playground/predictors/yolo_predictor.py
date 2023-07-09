@@ -1,3 +1,4 @@
+from pprint import pprint
 from typing import Tuple, List, Dict, Optional, Any
 
 import PIL
@@ -22,8 +23,8 @@ class YoloV1Predictor(Predictor):
             self,
             model: nn.Module,
             intermediate_size: Tuple[int, int] = (448, 448),
-            threshold: float = 0.02,
-            min_available_area: float = 0.80,
+            threshold: float = 0.20,
+            max_overlap: float = 0.25,
             num_bounding_boxes: int = 2,
             num_classes: int = 20,
             grid_size: int = 7,
@@ -50,7 +51,7 @@ class YoloV1Predictor(Predictor):
         self.class_to_idx_map = class_map
         self.idx_to_class_map = {v: k for k, v in self.class_to_idx_map.items()} if class_map is not None else None
 
-        self.min_available_area = min_available_area
+        self.max_overlap = max_overlap
 
     def collate_in(self, images: List[Image] | Image):
         if not isinstance(images, list):
@@ -119,8 +120,7 @@ class YoloV1Predictor(Predictor):
 
             bbox_area = (x_max - x_min) * (y_max - y_min)
             already_occupied = occupied_area[i][y_min:y_max, x_min:x_max].sum().cpu().item()
-            available_area = bbox_area - already_occupied
-            if available_area / bbox_area < self.min_available_area:
+            if already_occupied / bbox_area > self.max_overlap:
                 continue
 
             occupied_area[i][y_min:y_max, x_min:x_max] = True
@@ -133,7 +133,7 @@ class YoloV1Predictor(Predictor):
                 'y_min': y_min,
                 'x_max': x_max,
                 'y_max': y_max,
-                'already_occupied': already_occupied / bbox_area,
+                'overlap': already_occupied / bbox_area,
                 'area': bbox_area,
             }
 
@@ -227,11 +227,11 @@ class YoloV1Predictor(Predictor):
 def main():
     model = load_best_model("models/train/ResNetYoloV1/2023-07-06_14-37-23")
     class_map = get_voc_detection_dataset_yolo()[1].class_map
-    predictor = YoloV1Predictor(model, threshold=0.10, class_map=class_map, min_available_area=0.75)
+    predictor = YoloV1Predictor(model, threshold=0.20, class_map=class_map, max_overlap=0.25)
     voc_test = get_voc_detection_dataset_raw()[1]
     image = voc_test[9][0]
     predicted = predictor.predict(image)
-    print(predicted)
+    pprint(predicted)
 
 
 if __name__ == '__main__':
