@@ -159,7 +159,26 @@ class YoloV1Predictor(Predictor):
 
             cv2.rectangle(image_edited, (x_min, y_min), (x_max, y_max), color, 2)
             text_size = cv2.getTextSize(display, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
-            cv2.putText(image_edited, display, (x_min, y_min + text_size[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+
+            # Determine how big the text_width is compared to the bounding box
+            text_width = text_size[0]
+            text_height = text_size[1]
+            box_width = x_max - x_min
+            box_height = y_max - y_min
+
+            # If the text is wider than the bounding box, then we need to compute the scale factor
+            scale_factor = 1.0
+            if text_width > box_width:
+                scale_factor *= box_width / text_width
+                text_width = int(scale_factor * text_width)
+                text_height = int(scale_factor * text_height)
+
+            if text_height > box_height:
+                scale_factor *= box_height / text_height
+                text_width = int(scale_factor * text_width)
+                text_height = int(scale_factor * text_height)
+
+            cv2.putText(image_edited, display, (x_min, y_min + text_height), cv2.FONT_HERSHEY_SIMPLEX, scale_factor, color, 2)
 
         image_edited = PIL.Image.fromarray(image_edited)
         return image_edited
