@@ -12,6 +12,7 @@ from torchvision.transforms import Compose, Resize, ToTensor
 from vision_models_playground.data_structures.yolo_bounding_box import YoloBoundingBoxOperations
 from vision_models_playground.datasets.datasets import get_voc_detection_dataset_raw, get_voc_detection_dataset_yolo
 from vision_models_playground.predictors.base_predictor import Predictor
+from vision_models_playground.utility.hub import load_vmp_model_from_hub
 from vision_models_playground.utility.load_models import load_best_model
 
 
@@ -225,7 +226,7 @@ class YoloV1Predictor(Predictor):
 
 
 def main():
-    model = load_best_model("models/train/ResNetYoloV1/2023-07-06_14-37-23")
+    model = load_vmp_model_from_hub('Akriel/ResNetYoloV1')
     class_map = get_voc_detection_dataset_yolo()[1].class_map
     predictor = YoloV1Predictor(model, threshold=0.20, class_map=class_map, max_overlap=0.25)
     voc_test = get_voc_detection_dataset_raw()[1]

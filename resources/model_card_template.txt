@@ -1,0 +1,7 @@
+# **Vision Models Playground**
+This is a trained model from the Vision Models Playground repository
+Link to the repository: https://github.com/Akrielz/vision_models_playground
+
+## **Model**
+This model is a custom implementation of **<config['class_name']>** from the ```<config['module_name']>``` module.
+Please look in the config file for more information about the model architecture.
