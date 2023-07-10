@@ -1,5 +1,5 @@
 # **Vision Models Playground**
-This is a trained model from the Vision Models Playground repository
+This is a trained model from the Vision Models Playground repository.
 Link to the repository: https://github.com/Akrielz/vision_models_playground
 
 ## **Model**

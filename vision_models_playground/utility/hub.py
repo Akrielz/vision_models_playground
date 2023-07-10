@@ -1,4 +1,5 @@
 import json
+import re
 import shutil
 from pathlib import Path
 
@@ -40,8 +41,13 @@ def push_model_to_hub(
     model_card_path = 'resources/model_card_template.txt'
     with open(model_card_path, "r") as f:
         model_card = f.read()
-    model_card = model_card.replace("<config['class_name']>", config['class_name'])
-    model_card = model_card.replace("<config['module_name']>", config['module_name'])
+
+    # Find all the <variable> in using a regex
+    variable_regex = r"<(.*?)>"
+    matches = re.findall(variable_regex, model_card)
+
+    for variables in matches:
+        model_card = model_card.replace(f"<{variables}>", eval(variables))
 
     # Create a readme.md with the model path
     readme_path = repo_local_path / "README.md"
@@ -70,3 +76,9 @@ def load_vmp_model_from_hub(repo_id):
 
     return model
 
+
+if __name__ == "__main__":
+    push_model_to_hub(
+        repo_id="Akriel/ResNetYoloV1",
+        model_path="models/train/ResNetYoloV1/2023-07-06_14-37-23",
+    )
