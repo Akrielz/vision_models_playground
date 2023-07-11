@@ -120,6 +120,9 @@ class Evaluator:
         self.device = device
         self.monitor_value = None
 
+        self.test_dataset_name = test_dataset.__class__.__name__
+        self.test_dataset_module = test_dataset.__class__.__module__
+
         # Add summary writer
         self.writer = SummaryWriter(log_dir=save_dir)
 
@@ -236,11 +239,19 @@ class Evaluator:
         progress_bar.set_description_str(description, refresh=False)
 
     def create_report(self):
+        header = '## **Metrics**'
+
+        dataset_info = f'The model was evaluated on the following dataset: **{self.test_dataset_name}** from ```{self.test_dataset_module}```'
+
         metric_log = self.__prepare_metric_log(self.test_metrics, 'Test', 0, delimiter='  \n', apply_writer=False)
+        metric_log_formatted = ''.join([f"\n- {line}" for line in metric_log.split('\n') if len(line) > 0])
+        metrics_info = "These are the results of the evaluation:  \n\n" + metric_log_formatted
+
+        full_log = f"{header}\n\n{dataset_info}\n\n{metrics_info}"
 
         # Write in file
         with open(f'{self.save_dir}/report.md', 'w') as f:
-            f.write(metric_log)
+            f.write(full_log)
 
     @torch.no_grad()
     def __test_epoch(self):
