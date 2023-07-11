@@ -6,6 +6,16 @@ Link to the repository: https://github.com/Akrielz/vision_models_playground
 This model is a custom implementation of **<config['class_name']>** from the ```<config['module_name']>``` module.
 Please look in the config file for more information about the model architecture.
 
+## **Usage**
+To load the model, you can use the following code snippet:
+
+```python
+from vision_models_playground.utility.hub import load_vmp_model_from_hub
+
+
+model = load_vmp_model_from_hub("<repo_id>")
+```
+
 <metrics_log>
 
 ## **Additional Information**

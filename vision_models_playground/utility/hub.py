@@ -12,7 +12,8 @@ from vision_models_playground.utility.load_models import load_best_model
 def _create_readme(
         readme_path: Path,
         config: Dict[str, Any],
-        report_path: Optional[Path] = None
+        repo_id: str,
+        report_path: Optional[Path] = None,
 ):
     # If the report path was given, read the report
     metrics_log = ""
@@ -79,7 +80,7 @@ def push_model_to_hub(
 
     if not readme_path.exists() or rewrite_readme:
         report_path = repo_local_path / "eval" / "report.md" if eval_path is not None else None
-        _create_readme(readme_path, config, report_path)
+        _create_readme(readme_path, config, repo_id, report_path)
 
     # Push everything to the hub
     api.upload_folder(
@@ -89,7 +90,7 @@ def push_model_to_hub(
     )
 
 
-def load_vmp_model_from_hub(repo_id):
+def load_vmp_model_from_hub(repo_id: str):
     # Download files
     repo_local_path = Path(snapshot_download(repo_id=repo_id))
 
