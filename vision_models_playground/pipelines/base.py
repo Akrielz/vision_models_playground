@@ -1,15 +1,17 @@
 from copy import deepcopy
-from typing import Callable, Optional
+from typing import Callable, Optional, Any, List
 
 import torch
 from torch import nn
 
 
-class Predictor:
+class Pipeline:
     def __init__(
-            self, model: nn.Module,
+            self,
+            model: nn.Module,
             collate_in: Callable = None,
             collate_out: Callable = None,
+            *,
             device: Optional[torch.device] = None
     ):
         if device is None:
@@ -31,7 +33,7 @@ class Predictor:
 
         return self
 
-    def predict(self, x):
+    def predict(self, x: Any):
         initial_x = deepcopy(x)
 
         if self._collate_in is not None:
@@ -44,5 +46,21 @@ class Predictor:
 
         return y
 
-    def __call__(self, x):
+    def __call__(self, x: Any):
         return self.predict(x)
+
+    def input_type(self):
+        if self._collate_in is None:
+            return Any
+
+        annotations = list(self._collate_in.__annotations__.keys())
+        input = [annotation for annotation in annotations if annotation != 'return'][0]
+        type = self._collate_in.__annotations__[input]
+
+        return type
+
+    def output_type(self):
+        if self._collate_out is None:
+            return Any
+
+        return self._collate_out.__annotations__['return']

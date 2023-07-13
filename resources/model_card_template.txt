@@ -3,17 +3,32 @@ This is a trained model from the Vision Models Playground repository.
 Link to the repository: https://github.com/Akrielz/vision_models_playground
 
 ## **Model**
-This model is a custom implementation of **<config['class_name']>** from the ```<config['module_name']>``` module.
+This model is a custom implementation of **<model_config['class_name']>** from the ```<model_config['module_name']>``` module.
 Please look in the config file for more information about the model architecture.
 
 ## **Usage**
-To load the model, you can use the following code snippet:
+To load the torch model, you can use the following code snippet:
 
 ```python
+import torch
 from vision_models_playground.utility.hub import load_vmp_model_from_hub
 
 
 model = load_vmp_model_from_hub("<repo_id>")
+
+x = torch.randn(...)
+y = model(x)  # y will be of type torch.Tensor
+```
+
+To load the pipeline that includes the model, you can use the following code snippet:
+
+```python
+from vision_models_playground.utility.hub import load_vmp_pipeline_from_hub
+
+pipeline = load_vmp_pipeline_from_hub("<repo_id>")
+
+x = raw_data  # raw_data will be of type pipeline.input_type
+y = pipeline(x)  # y will be of type pipeline.output_type
 ```
 
 <metrics_log>

@@ -11,18 +11,18 @@ from torchvision.transforms import Compose, Resize, ToTensor
 
 from vision_models_playground.data_structures.yolo_bounding_box import YoloBoundingBoxOperations
 from vision_models_playground.datasets.datasets import get_voc_detection_dataset_raw, get_voc_detection_dataset_yolo
-from vision_models_playground.predictors.base_predictor import Predictor
-from vision_models_playground.utility.hub import load_vmp_model_from_hub
-from vision_models_playground.utility.load_models import load_best_model
-
+from vision_models_playground.pipelines.base import Pipeline
+from vision_models_playground.utility.config import config_wrapper, object_to_json, pipeline_to_json
+from vision_models_playground.utility.hub import load_vmp_model_from_hub, load_vmp_pipeline_from_hub
 
 YoloObjects = Dict[str, Any]
 
 
-class YoloV1Predictor(Predictor):
+class YoloV1Pipeline(Pipeline):
     def __init__(
             self,
             model: nn.Module,
+            *,
             intermediate_size: Tuple[int, int] = (448, 448),
             threshold: float = 0.20,
             max_overlap: float = 0.25,
@@ -38,6 +38,9 @@ class YoloV1Predictor(Predictor):
             ToTensor(),
             Resize(intermediate_size, antialias=True),
         ])
+
+        if class_map is not None:
+            num_classes = len(class_map)
 
         self.threshold = threshold
         self.grid_size = grid_size
@@ -184,7 +187,7 @@ class YoloV1Predictor(Predictor):
         image_edited = PIL.Image.fromarray(image_edited)
         return image_edited
 
-    def collate_out(self, orig_images: List[Image] | Image, output: torch.Tensor):
+    def collate_out(self, orig_images: List[Image] | Image, output: torch.Tensor) -> List[YoloObjects]:
         if not isinstance(orig_images, list):
             orig_images = [orig_images]
 
@@ -226,12 +229,11 @@ class YoloV1Predictor(Predictor):
 
 
 def main():
-    model = load_vmp_model_from_hub('Akriel/ResNetYoloV1')
-    class_map = get_voc_detection_dataset_yolo()[1].class_map
-    predictor = YoloV1Predictor(model, threshold=0.20, class_map=class_map, max_overlap=0.25)
+    pipeline = load_vmp_pipeline_from_hub('Akriel/ResNetYoloV1')
+
     voc_test = get_voc_detection_dataset_raw()[1]
     image = voc_test[9][0]
-    predicted = predictor.predict(image)
+    predicted = pipeline(image)
     pprint(predicted)
 
 

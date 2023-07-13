@@ -6,12 +6,13 @@ from typing import Dict, Any, Optional
 
 from huggingface_hub import HfApi, snapshot_download, metadata_save
 
-from vision_models_playground.utility.load_models import load_best_model
+from vision_models_playground.utility.config import build_pipeline_from_config_path
+from vision_models_playground.utility.load_models import load_model_from_dir
 
 
 def _create_readme(
         readme_path: Path,
-        config: Dict[str, Any],
+        model_config: Dict[str, Any],
         repo_id: str,
         report_path: Optional[Path] = None,
 ):
@@ -46,12 +47,13 @@ def push_model_to_hub(
         repo_id: str,
         model_path: str,
         eval_path: Optional[str] = None,
+        pipeline_path: Optional[str] = None,
         rewrite_readme: bool = False,
 ):
     # Read the config from the model_path
     config_path = Path(model_path) / "config.json"
     with open(config_path, "r") as f:
-        config = json.load(f)
+        model_config = json.load(f)
 
     # Get the repo name
     _, repo_name = repo_id.split("/")
@@ -75,12 +77,15 @@ def push_model_to_hub(
     if eval_path is not None:
         shutil.copytree(eval_path, repo_local_path / "eval", dirs_exist_ok=True)
 
+    if pipeline_path is not None:
+        shutil.copytree(pipeline_path, repo_local_path / "pipeline", dirs_exist_ok=True)
+
     # Check if readme already exists
     readme_path = repo_local_path / "README.md"
 
     if not readme_path.exists() or rewrite_readme:
         report_path = repo_local_path / "eval" / "report.md" if eval_path is not None else None
-        _create_readme(readme_path, config, repo_id, report_path)
+        _create_readme(readme_path, model_config, repo_id, report_path)
 
     # Push everything to the hub
     api.upload_folder(
@@ -90,15 +95,35 @@ def push_model_to_hub(
     )
 
 
-def load_vmp_model_from_hub(repo_id: str):
+def load_vmp_model_from_hub(
+        repo_id: str,
+        file_name: str = "best",
+):
     # Download files
     repo_local_path = Path(snapshot_download(repo_id=repo_id))
 
     # Load best model
     model_path = repo_local_path / "model"
-    model = load_best_model(str(model_path))
+    model = load_model_from_dir(str(model_path), file_name=file_name)
 
     return model
+
+
+def load_vmp_pipeline_from_hub(
+        repo_id: str,
+        file_name: str = "best",
+):
+    # Get model from hub
+    model = load_vmp_model_from_hub(repo_id, file_name=file_name)
+
+    # Get download path
+    repo_local_path = Path(snapshot_download(repo_id=repo_id))
+
+    # Get pipeline
+    pipeline_config_path = repo_local_path / "pipeline" / "config.json"
+    pipeline = build_pipeline_from_config_path(str(pipeline_config_path), model)
+
+    return pipeline
 
 
 if __name__ == "__main__":
@@ -106,5 +131,10 @@ if __name__ == "__main__":
         repo_id="Akriel/ResNetYoloV1",
         model_path="models/train/ResNetYoloV1/2023-07-06_14-37-23",
         eval_path="models/eval/ResNetYoloV1/2023-07-08_17-01-11",
+        pipeline_path="models/pipelines/YoloV1Pipeline/2023-07-13_20-08-34",
         rewrite_readme=True,
     )
+
+    # pipeline = load_vmp_pipeline_from_hub("Akriel/ResNetYoloV1")
+    # print(pipeline)
+

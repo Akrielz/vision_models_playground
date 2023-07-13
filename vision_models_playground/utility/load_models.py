@@ -62,9 +62,10 @@ def load_model_from_config(
     return model
 
 
-def load_best_model(
+def load_model_from_dir(
         save_dir: str,
         device: Optional[torch.device] = None,
+        file_name: str = 'best'
 ):
     """
     Load the best model from a save directory
@@ -76,29 +77,11 @@ def load_best_model(
 
     device: Optional[torch.device]
         The device to load the weights to. If None, it will be loaded to the device the model is on
+
+    file_name: str
+        The name of the file to load the weights from
     """
     config_path = f'{save_dir}/config.json'
-    weights_path = f'{save_dir}/best.pt'
-
-    return load_model_from_config(config_path, weights_path, device)
-
-
-def load_last_model(
-        save_dir: str,
-        device: Optional[torch.device] = None,
-):
-    """
-    Load the last model from a save directory
-
-    Arguments
-    ---------
-    save_dir: str
-        The directory to load the model from
-
-    device: Optional[torch.device]
-        The device to load the weights to. If None, it will be loaded to the device the model is on
-    """
-    config_path = f'{save_dir}/config.json'
-    weights_path = f'{save_dir}/last.pt'
+    weights_path = f'{save_dir}/{file_name}.pt'
 
     return load_model_from_config(config_path, weights_path, device)
