@@ -26,19 +26,9 @@ def build_object_from_config(config: Dict[str, Any]):
     return _class(*config['args'], **config['kwargs'])
 
 
-def build_pipeline_from_config(config: Dict[str, Any], model: nn.Module):
-    config['args'] = [model]
-    return build_object_from_config(config)
-
-
 def build_object_from_config_path(config_path: str):
     config = json.load(open(config_path, 'r'))
     return build_object_from_config(config)
-
-
-def build_pipeline_from_config_path(config_path: str, model: nn.Module):
-    config = json.load(open(config_path, 'r'))
-    return build_pipeline_from_config(config, model)
 
 
 def get_config_from_object(obj: Any):
@@ -67,7 +57,7 @@ def init_path(
         prefix = ''
 
     current_date = f'{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}'
-    save_dir = f'{save_dir}/models/{prefix}/{object.__class__.__name__}/{current_date}'
+    save_dir = f'{save_dir}/{prefix}/{object.__class__.__name__}/{current_date}'
     save_dir = os.path.normpath(save_dir)
 
     if not os.path.exists(save_dir):
@@ -85,8 +75,8 @@ def object_to_json(obj: Any, save_dir: Optional[str] = None):
     config_to_json(config, path)
 
 
-def pipeline_to_json(pipeline: Pipeline, path: Optional[str] = None):
-    path = init_path(path, pipeline, prefix='pipelines')
+def pipeline_to_json(pipeline: Pipeline, save_dir: Optional[str] = None):
+    path = init_path(save_dir, pipeline, prefix='model/pipelines')
     config = get_config_from_object(pipeline)
-    config['args'] = None
+    config['args'] = []
     config_to_json(config, path)

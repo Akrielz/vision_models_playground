@@ -6,7 +6,7 @@ from typing import Dict, Any, Optional
 
 from huggingface_hub import HfApi, snapshot_download, metadata_save
 
-from vision_models_playground.utility.config import build_pipeline_from_config_path
+from vision_models_playground.utility.config import build_object_from_config_path
 from vision_models_playground.utility.load_models import load_model_from_dir
 
 
@@ -121,20 +121,21 @@ def load_vmp_pipeline_from_hub(
 
     # Get pipeline
     pipeline_config_path = repo_local_path / "pipeline" / "config.json"
-    pipeline = build_pipeline_from_config_path(str(pipeline_config_path), model)
+    pipeline = build_object_from_config_path(str(pipeline_config_path))
+    pipeline.set_model(model)
 
     return pipeline
 
 
 if __name__ == "__main__":
-    push_model_to_hub(
-        repo_id="Akriel/ResNetYoloV1",
-        model_path="models/train/ResNetYoloV1/2023-07-06_14-37-23",
-        eval_path="models/eval/ResNetYoloV1/2023-07-08_17-01-11",
-        pipeline_path="models/pipelines/YoloV1Pipeline/2023-07-13_20-08-34",
-        rewrite_readme=True,
-    )
+    # push_model_to_hub(
+    #     repo_id="Akriel/ResNetYoloV1",
+    #     model_path="models/train/ResNetYoloV1/2023-07-06_14-37-23",
+    #     eval_path="models/eval/ResNetYoloV1/2023-07-08_17-01-11",
+    #     pipeline_path="models/pipelines/YoloV1Pipeline/2023-07-13_20-08-34",
+    #     rewrite_readme=True,
+    # )
 
-    # pipeline = load_vmp_pipeline_from_hub("Akriel/ResNetYoloV1")
-    # print(pipeline)
+    pipeline = load_vmp_pipeline_from_hub("Akriel/ResNetYoloV1")
+    print(pipeline)
 

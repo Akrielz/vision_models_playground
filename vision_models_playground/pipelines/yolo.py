@@ -10,10 +10,9 @@ from torch import nn
 from torchvision.transforms import Compose, Resize, ToTensor
 
 from vision_models_playground.data_structures.yolo_bounding_box import YoloBoundingBoxOperations
-from vision_models_playground.datasets.datasets import get_voc_detection_dataset_raw, get_voc_detection_dataset_yolo
+from vision_models_playground.datasets.datasets import get_voc_detection_dataset_raw
 from vision_models_playground.pipelines.base import Pipeline
-from vision_models_playground.utility.config import config_wrapper, object_to_json, pipeline_to_json
-from vision_models_playground.utility.hub import load_vmp_model_from_hub, load_vmp_pipeline_from_hub
+from vision_models_playground.utility.hub import load_vmp_pipeline_from_hub
 
 YoloObjects = Dict[str, Any]
 
@@ -21,7 +20,7 @@ YoloObjects = Dict[str, Any]
 class YoloV1Pipeline(Pipeline):
     def __init__(
             self,
-            model: nn.Module,
+            model: Optional[nn.Module] = None,
             *,
             intermediate_size: Tuple[int, int] = (448, 448),
             threshold: float = 0.20,

@@ -8,7 +8,7 @@ from torch import nn
 class Pipeline:
     def __init__(
             self,
-            model: nn.Module,
+            model: Optional[nn.Module] = None,
             collate_in: Callable = None,
             collate_out: Callable = None,
             *,
@@ -17,9 +17,7 @@ class Pipeline:
         if device is None:
             device = torch.device('cpu')
 
-        self.model = model
-        self.model.eval()
-        self.model.requires_grad_(False)
+        self.set_model(model)
 
         self._collate_in = collate_in
         self._collate_out = collate_out
@@ -28,12 +26,28 @@ class Pipeline:
         self.to(device)
 
     def to(self, device):
-        self.model.to(device)
+        if self.model is not None:
+            self.model = self.model.to(device)
+
         self.device = device
 
         return self
 
+    def set_model(self, model: Optional[nn.Module]):
+        self.model = model
+
+        if model is None:
+            return self
+
+        self.model.eval()
+        self.model.requires_grad_(False)
+
+        return self
+
     def predict(self, x: Any):
+        if self.model is None:
+            raise ValueError('No model set, please set a model using the self.set_model(model).')
+
         initial_x = deepcopy(x)
 
         if self._collate_in is not None:
