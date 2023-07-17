@@ -19,7 +19,7 @@ def create_imports_for_all_sub_dirs(dir_path: str):
 
         # Check if the current directory does not contain any public dir
         # Aka if it is a leaf
-        public_dirs = [dir for dir in dirs if not dir.startswith("_")]
+        public_dirs = [d for d in dirs if not d.startswith("_")]
 
         if len(public_dirs):
             continue
@@ -29,8 +29,14 @@ def create_imports_for_all_sub_dirs(dir_path: str):
 
 
 def create_imports_classes_and_functions(dir_path: str):
+    # Delete the previous __init__.py file
+    init_path = os.path.join(dir_path, '__init__.py')
+    if os.path.exists(init_path):
+        os.remove(init_path)
+
+    # Create the new __init__.py file
     create_import_shortcuts(dir_path, keyword='class', append=False, description="# Classes")
-    create_import_shortcuts(dir_path, keyword='def', append=True, description="\n# Functions")
+    create_import_shortcuts(dir_path, keyword='def', append=True, description="# Functions")
 
 
 def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool = True, description: str = "Classes"):
@@ -91,9 +97,14 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
     if not added:
         return
 
+    # Check if the __init__.py file exists
+    init_path = os.path.join(dir_path, '__init__.py')
+    if os.path.exists(init_path):
+        all_imports = "\n" + all_imports
+
     # Write the all imports string to the file "__init__.py"
     open_mode = "a" if append else "w"
-    with open(os.path.join(dir_path, "__init__.py"), open_mode) as f:
+    with open(init_path, open_mode) as f:
         f.write(all_imports)
 
 
