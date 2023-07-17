@@ -18,7 +18,7 @@ def create_imports_for_all_sub_dirs(dir_path: str):
             continue
 
         # Check if the current directory does not contain any public dir
-        # Aka if it is leaf
+        # Aka if it is a leaf
         public_dirs = [dir for dir in dirs if not dir.startswith("_")]
 
         if len(public_dirs):
