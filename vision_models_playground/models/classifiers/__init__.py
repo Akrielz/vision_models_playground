@@ -6,6 +6,7 @@ from vision_models_playground.models.classifiers.ff_classifier import FeedForwar
 from vision_models_playground.models.classifiers.perceiver import Perceiver
 from vision_models_playground.models.classifiers.conv_classifier import ConvolutionalClassifier
 from vision_models_playground.models.classifiers.vision_perceiver import VisionPerceiver
+
 # Functions
 from vision_models_playground.models.classifiers.conv_vision_transformer import build_cvt_13
 from vision_models_playground.models.classifiers.conv_vision_transformer import build_cvt_21

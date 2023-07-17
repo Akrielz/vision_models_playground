@@ -29,15 +29,15 @@ def create_imports_for_all_sub_dirs(dir_path: str):
 
 
 def create_imports_classes_and_functions(dir_path: str):
-    create_import_shortcuts(dir_path, keyword='class', append=False, description="Classes")
-    create_import_shortcuts(dir_path, keyword='def', append=True, description="Functions")
+    create_import_shortcuts(dir_path, keyword='class', append=False, description="# Classes")
+    create_import_shortcuts(dir_path, keyword='def', append=True, description="\n# Functions")
 
 
 def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool = True, description: str = "Classes"):
     # Get a list with all the files in the directory
     files = os.listdir(dir_path)
 
-    all_imports = f"# {description}\n"
+    all_imports = f"{description}\n"
     added = False
 
     # Iterate over all the files
@@ -54,12 +54,18 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
             # Get the contents of the file
             contents = f.read()
 
+        if file == "evaluate_models.py":
+            print('hi')
+
         # Identify all keyword name by the rule: "keyword <class_name>(<parent_class_name>):"
         # or by the rule: "keyword <class_name>:", given that there is no spaces/tabs before the class keyword
         class_names = re.findall(keyword + r'\s+([a-zA-Z0-9_]+)', contents)
 
+        # Get the positions of the class_names with regex
+        class_names_positions = [m.start() for m in re.finditer(keyword + r'\s+([a-zA-Z0-9_]+)', contents)]
+
         # Iterate over all the class names
-        for class_name in class_names:
+        for class_name, position in zip(class_names, class_names_positions):
             if class_name.startswith("_"):
                 continue
 
@@ -67,7 +73,7 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
                 continue
 
             # check if there are tabs or spaces before the class keyword
-            if contents[contents.find(f"{keyword} " + class_name) - 1] in "\t ":
+            if contents[position - 1] in "\t ":
                 continue
 
             # Prepare to import the class name
@@ -92,9 +98,16 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
 
 
 if __name__ == "__main__":
+    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/components")
+    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/datasets")
+    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/evaluate")
+    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/losses")
+    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/metrics")
     create_imports_for_all_sub_dirs(dir_path="vision_models_playground/models/classifiers")
     create_imports_for_all_sub_dirs(dir_path="vision_models_playground/models/segmentation")
     create_imports_for_all_sub_dirs(dir_path="vision_models_playground/models/augmenters")
     create_imports_for_all_sub_dirs(dir_path="vision_models_playground/models/autoencoders")
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/components")
+    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/pipelines")
+    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/train")
+    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/transforms")
     create_imports_for_all_sub_dirs(dir_path="vision_models_playground/utility")
