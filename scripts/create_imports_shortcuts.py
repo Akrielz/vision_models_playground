@@ -1,18 +1,11 @@
 import os
 import re
-from typing import List
 
 
-def create_imports_for_all_sub_dirs(dir_path: str, exclude_dirs: List[str] = None):
-    if exclude_dirs is None:
-        exclude_dirs = []
-
+def create_imports_for_all_sub_dirs(dir_path: str):
     # Walk in all the subdirectories
     for root, dirs, files in os.walk(dir_path):
         path = root.split(os.sep)
-
-        if root in exclude_dirs:
-            continue
 
         # Check if the path contains a private directory
         private = False
@@ -116,15 +109,6 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
 
 
 if __name__ == "__main__":
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/components")
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/datasets")
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/evaluate")
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/losses")
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/metrics")
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/models/classifiers")
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/models/segmentation")
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/optimizers")
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/pipelines")
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/train")
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/transforms")
-    create_imports_for_all_sub_dirs(dir_path="vision_models_playground/utility")
+    create_imports_for_all_sub_dirs(
+        dir_path="vision_models_playground"
+    )
