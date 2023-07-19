@@ -35,16 +35,38 @@ def create_imports_classes_and_functions(dir_path: str):
         os.remove(init_path)
 
     # Create the new __init__.py file
-    create_import_shortcuts(dir_path, keyword='class', append=False, description="# Classes")
-    create_import_shortcuts(dir_path, keyword='def', append=True, description="# Functions")
+    all_classes = create_import_shortcuts(dir_path, keyword='class', append=False, description="# Classes")
+    all_functions = create_import_shortcuts(dir_path, keyword='def', append=True, description="# Functions")
+
+    if not os.path.exists(init_path):
+        return
+
+    all_keywords = all_classes + all_functions
+
+    # Put all keywords in the __all__ list
+    all_string = "\n# All imports \n__all__ = [\n"
+    for keyword in all_keywords:
+        all_string += f"    '{keyword}',\n"
+    all_string += "]\n"
+
+    # Write the __init__.py file
+    with open(init_path, 'a') as f:
+        f.write(all_string)
 
 
-def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool = True, description: str = "Classes"):
+def create_import_shortcuts(
+        dir_path: str,
+        keyword: str = 'class',
+        append: bool = True,
+        description: str = "Classes"
+):
     # Get a list with all the files in the directory
     files = os.listdir(dir_path)
 
     all_imports = f"{description}\n"
     added = False
+
+    all_classes = []
 
     # Iterate over all the files
     for file in files:
@@ -87,6 +109,7 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
 
             # Append the import statement to the all imports string
             all_imports += import_string
+            all_classes.append(class_name)
 
             added = True
 
@@ -95,7 +118,7 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
 
     # If not added any imports, then do not create a file
     if not added:
-        return
+        return []
 
     # Check if the __init__.py file exists
     init_path = os.path.join(dir_path, '__init__.py')
@@ -106,6 +129,8 @@ def create_import_shortcuts(dir_path: str, keyword: str = 'class', append: bool 
     open_mode = "a" if append else "w"
     with open(init_path, open_mode) as f:
         f.write(all_imports)
+
+    return all_classes
 
 
 if __name__ == "__main__":
