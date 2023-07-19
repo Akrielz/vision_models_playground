@@ -10,4 +10,5 @@ from vision_models_playground.datasets.datasets import get_tourism_dataset
 from vision_models_playground.datasets.datasets import get_voc_detection_dataset_raw
 from vision_models_playground.datasets.datasets import get_voc_detection_dataset_yolo
 from vision_models_playground.datasets.datasets import get_voc_detection_dataset_yolo_aug
+from vision_models_playground.datasets.datasets import get_image_net_dataset
 from vision_models_playground.datasets.datasets import get_n_images

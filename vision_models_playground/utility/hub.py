@@ -6,8 +6,8 @@ from typing import Dict, Any, Optional
 
 from huggingface_hub import HfApi, snapshot_download, metadata_save
 
-from vision_models_playground.utility.config import build_object_from_config_path
-from vision_models_playground.utility.load_models import load_model_from_dir
+import vision_models_playground.utility.config as utility_config
+import vision_models_playground.utility.load_models as utility_load_models
 
 
 def _create_readme(
@@ -104,7 +104,7 @@ def load_vmp_model_from_hub(
 
     # Load best model
     model_path = repo_local_path / "model"
-    model = load_model_from_dir(str(model_path), file_name=file_name)
+    model = utility_load_models.load_model_from_dir(str(model_path), file_name=file_name)
 
     return model
 
@@ -121,7 +121,7 @@ def load_vmp_pipeline_from_hub(
 
     # Get pipeline
     pipeline_config_path = repo_local_path / "pipeline" / "config.json"
-    pipeline = build_object_from_config_path(str(pipeline_config_path))
+    pipeline = utility_config.build_object_from_config_path(str(pipeline_config_path))
     pipeline.set_model(model)
 
     return pipeline
