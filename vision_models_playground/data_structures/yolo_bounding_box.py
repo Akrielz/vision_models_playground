@@ -2,7 +2,6 @@ from typing import Union
 
 import torch
 
-from vision_models_playground.datasets.yolo_pascal_voc_dataset import YoloPascalVocDataset
 from vision_models_playground.metrics.intersection_over_union import compute_iou
 
 
@@ -185,7 +184,6 @@ class YoloBoundingBoxOperations:
 
         return torch.stack([x_min, y_min, x_max, y_max], dim=-1)
 
-
     def compute_iou(
             self,
             pred_bounding_boxes: torch.Tensor,
@@ -215,15 +213,3 @@ class YoloBoundingBoxOperations:
         target_coords = self.to_corners(target_bounding_boxes)
 
         return compute_iou(pred_coords, target_coords)
-
-
-def main():
-    voc_train = YoloPascalVocDataset(download=False)
-    bbox = torch.stack([voc_train[0][1], voc_train[1][1], voc_train[2][1]])
-    bbox_operations = YoloBoundingBoxOperations()
-    to_coords = bbox_operations.compute_iou(bbox, bbox)
-    print(to_coords.shape)
-
-
-if __name__ == '__main__':
-    main()

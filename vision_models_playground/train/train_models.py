@@ -8,11 +8,13 @@ import torch
 import torchmetrics
 from colorama import Fore
 from torch import nn
+from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from vision_models_playground.metrics.loss_tracker import LossTracker
+from vision_models_playground.optimizers.lion import Lion
 
 
 def train_model(
@@ -109,7 +111,7 @@ class Trainer:
 
         # Init optimizer
         if optimizer is None:
-            optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+            optimizer = Adam(model.parameters(), lr=1e-4)
 
         # Init metrics
         if metrics is None:

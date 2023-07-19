@@ -5,7 +5,6 @@ from torch import argmax
 from torchmetrics.detection import MeanAveragePrecision
 
 from vision_models_playground.data_structures.yolo_bounding_box import YoloBoundingBoxOperations
-from vision_models_playground.datasets.yolo_pascal_voc_dataset import YoloPascalVocDataset
 
 
 class YoloV1ClassMetricWrapper(torchmetrics.Metric):
@@ -121,17 +120,3 @@ class YoloV1MeanAveragePrecision(torchmetrics.Metric):
 
     def __repr__(self):
         return self.mAP.__repr__()
-
-
-def main():
-    voc_train = YoloPascalVocDataset(download=False)
-    bbox_pred = torch.stack([voc_train[2][1], voc_train[2][1]])
-    bbox_target = torch.stack([voc_train[2][1], voc_train[3][1]])
-
-    metric = YoloV1MeanAveragePrecision()
-    metric.update(bbox_pred, bbox_target)
-    print(metric.compute())
-
-
-if __name__ == '__main__':
-    main()

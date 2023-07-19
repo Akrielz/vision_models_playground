@@ -5,7 +5,8 @@
 - [Description](#description)
 - [Install](#install)
 
-## Models
+## 
+- [YoloV1](#yolov1)
 - [ResNet](#resnet)
 - [Vision Transformer](#vision-transformer-vit)
 - [Generative Adversarial Networks](#generative-adversarial-networks-gan)
@@ -27,6 +28,22 @@ In order to install this package, run the following command:
 ```bash
 $ pip install vision-models-playground
 ```
+
+
+## YoloV1
+
+A detector based on the [YoloV1](https://arxiv.org/abs/1506.02640) architecture.
+
+### Usage
+
+Code example to initialize and use prebuild YoloV1
+
+```python
+import torch
+from vision_models_playground.models.segmentation import build_yolo_v1
+
+```
+
 
 ## ResNet
 

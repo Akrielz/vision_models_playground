@@ -4,8 +4,6 @@ import os
 from datetime import datetime
 from typing import Dict, Any, Optional
 
-from torch import nn
-
 from vision_models_playground.pipelines.base import Pipeline
 
 
