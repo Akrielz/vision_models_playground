@@ -104,6 +104,15 @@ def get_voc_detection_dataset_yolo_aug(
     return voc_train, voc_test
 
 
+def get_image_net_dataset(
+        root: str = './data'
+):
+    image_net_train = datasets.ImageNet(root=root, split='train')
+    image_net_test = datasets.ImageNet(root=root, split='val')
+
+    return image_net_train, image_net_test
+
+
 def get_n_images(dataset: torch.utils.data.Dataset, num_images: int):
     train_loader = DataLoader(
         dataset,
