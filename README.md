@@ -5,7 +5,7 @@
 - [Description](#description)
 - [Install](#install)
 
-## 
+## Models
 - [YoloV1](#yolov1)
 - [ResNet](#resnet)
 - [Vision Transformer](#vision-transformer-vit)
@@ -32,9 +32,11 @@ $ pip install vision-models-playground
 
 ## YoloV1
 
-A detector based on the [YoloV1](https://arxiv.org/abs/1506.02640) architecture.
+A detector based on the [YoloV1](https://arxiv.org/abs/1506.02640) architecture. Also known as Darknet.
 
 ### Usage
+
+Models can be initialized with pre-build or custom versions.
 
 Code example to initialize and use prebuild YoloV1
 
@@ -42,8 +44,110 @@ Code example to initialize and use prebuild YoloV1
 import torch
 from vision_models_playground.models.segmentation import build_yolo_v1
 
+model = build_yolo_v1(num_classes=20, in_channels=3, grid_size=7, num_bounding_boxes=2)
+
+img = torch.randn(1, 3, 448, 448)  # <batch_size, in_channels, height, width>
+preds = model(img)  # (1, 7, 7, 30) <batch_size, grid_size, grid_size, num_classes + 5 * num_bounding_boxes>
 ```
 
+Or if you want to use the custom YoloV1
+
+```python
+import torch
+from vision_models_playground.models.segmentation import YoloV1
+
+dims = [[64], [192], [128, 256, 256, 512], [256, 512, 256, 512, 256, 512, 256, 512, 512, 1024], [512, 1024, 512, 1024]]
+kernel_size = [[7], [3], [1, 3, 1, 3], [1, 3, 1, 3, 1, 3, 1, 3, 1, 3], [1, 3, 1, 3]]
+stride = [[2], [1], [1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1]]
+max_pools = [True, True, True, True, False]
+
+model = YoloV1(
+    dims=dims,
+    kernel_size=kernel_size,
+    stride=stride,
+    max_pools=max_pools,
+
+    in_channels=3,
+    num_classes=20,
+    num_bounding_boxes=2,
+    grid_size=7,
+
+    mlp_size=1024,
+)
+
+img = torch.randn(1, 3, 448, 448)  # <batch_size, in_channels, height, width>
+preds = model(img)  # (1, 7, 7, 30) <batch_size, grid_size, grid_size, num_classes + 5 * num_bounding_boxes>
+```
+
+### Parameters
+
+- `dims`: List[List[int]].  
+The number of channels in each layer.
+
+
+- `kernel_size`: List[List[int]].  
+The kernel size in each layer.
+
+
+- `stride`: List[List[int]].  
+The stride in each layer.
+
+
+- `max_pools`: List[bool].  
+If enabled, a max pool layer is applied after the convolutional layer.
+
+
+- `in_channels`: int.  
+The number of channels in the input image.
+
+
+- `num_classes`: int.  
+The number of classes to classify.
+
+
+- `num_bounding_boxes`: int.  
+The number of bounding boxes to predict per grid cell.
+
+
+- `grid_size`: int.  
+The size of the grid that the image is split into.
+
+
+- `mlp_size`: int.  
+The size of the MLP layer that is applied after the convolutional layers.
+
+
+### PreTrained Weights
+
+If you want to use the pretrained weights, you use the following code:
+
+```py
+import torch
+from vision_models_playground.utility.hub import load_vmp_model_from_hub
+
+
+model = load_vmp_model_from_hub("Akriel/ResNetYoloV1")
+
+img = torch.randn(1, 3, 448, 448)  # <batch_size, in_channels, height, width>
+preds = model(img)  # (1, 7, 7, 30) <batch_size, grid_size, grid_size, num_classes + 5 * num_bounding_boxes>
+```
+
+If you want to use the pretrained model within a pipeline on raw images, you can use the following code:
+
+```py
+from PIL import Image
+
+from vision_models_playground.utility.hub import load_vmp_pipeline_from_hub
+
+pipeline = load_vmp_pipeline_from_hub("Akriel/ResNetYoloV1")
+
+# Load image
+x = Image.open("path/to/image.jpg")
+y = pipeline(x)  # A dictionary containing the predictions
+```
+
+For more information about the pretrain models, check the [hub](https://huggingface.co/Akriel/ResNetYoloV1) page.  
+Or check the demo results from `explore_models/yolo_trained_model.ipynb`
 
 ## ResNet
 

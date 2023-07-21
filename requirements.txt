@@ -8,3 +8,4 @@ torchmetrics>=0.9.3
 numpy>=1.22.0
 matplotlib>=3.5.2
 tensorboard>=2.6.0
+Pillow>=9.5.0
