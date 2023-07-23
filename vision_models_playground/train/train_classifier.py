@@ -36,7 +36,6 @@ def train_model_classifier(
             Accuracy(**metrics_kwargs),
             AveragePrecision(**metrics_kwargs),
             AUROC(**metrics_kwargs),
-            Dice(**metrics_kwargs),
             F1Score(**metrics_kwargs),
         ]
 

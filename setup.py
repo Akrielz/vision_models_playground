@@ -10,6 +10,9 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 __version__ = "placeholder"
 exec(open('vision_models_playground/metadata.py').read())
 
+with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
+    requirements = f.read().splitlines()
+
 setup(
     name='vision_models_playground',
     packages=find_packages(),
@@ -28,17 +31,7 @@ setup(
         'attention mechanism',
         'computer vision',
     ],
-    install_requires=[
-        'einops>=0.4.1',
-        'torch>=1.10.0',
-        'rotary-embedding-torch>=0.1.0',
-        'torchvision>=0.11.1',
-        'colorama>=0.4.5',
-        'tqdm>=4.64.0',
-        'torchmetrics>=0.9.3',
-        'numpy>=1.22.0',
-        'matplotlib>=3.5.2',
-    ],
+    install_requires=requirements,
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

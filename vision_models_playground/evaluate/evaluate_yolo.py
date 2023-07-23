@@ -8,8 +8,8 @@ from torchmetrics import Accuracy, AveragePrecision, AUROC, Dice, F1Score
 from vision_models_playground.datasets.datasets import get_voc_detection_dataset_yolo
 from vision_models_playground.evaluate.evaluate_models import evaluate_model
 from vision_models_playground.losses.yolo_v1_loss import YoloV1Loss
-from vision_models_playground.metrics.wrapper import YoloV1ClassMetricWrapper, YoloV1MeanAveragePrecision
-from vision_models_playground.utility.load_models import load_best_model
+from vision_models_playground.metrics.wrapper import YoloV1ClassMetricWrapper
+from vision_models_playground.utility import load_model_from_dir
 
 
 def evaluate_yolo_v1(
@@ -64,7 +64,7 @@ def evaluate_yolo_v1(
 
 
 def main():
-    model = load_best_model("models/train/ResNetYoloV1/2023-07-06_14-37-23")
+    model = load_model_from_dir("models/train/ResNetYoloV1/2023-07-06_14-37-23")
     evaluate_yolo_v1(model)
 
 
