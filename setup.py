@@ -8,10 +8,10 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 __version__ = "placeholder"
+__classifiers__ = ["placeholder"]
+__keywords__ = "placeholder"
+__requirements__ = "placeholder"
 exec(open('vision_models_playground/metadata.py').read())
-
-with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
-    requirements = f.read().splitlines()
 
 setup(
     name='vision_models_playground',
@@ -24,19 +24,7 @@ setup(
     author='Alexandru Stirbu',
     author_email='Stirbu.Alexandru.Net@outlook.com',
     url='https://github.com/Akrielz/vision_models_playground',
-    keywords=[
-        'artificial intelligence',
-        'deep learning',
-        'transformer',
-        'attention mechanism',
-        'computer vision',
-    ],
-    install_requires=requirements,
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.8',
-    ],
+    keywords=__keywords__,
+    install_requires=__requirements__,
+    classifiers=__classifiers__,
 )
