@@ -14,11 +14,10 @@ def train_model_classifier(
         train_dataset: torch.utils.data.Dataset,
         valid_dataset: torch.utils.data.Dataset,
         loss_fn: Optional[Callable] = None,
-        optimizer: Optional[torch.optim.Optimizer] = None,
         num_epochs: int = 100,
         batch_size: int = 64,
-        print_every_x_steps: int = 1,
-        metrics: Optional[List[torchmetrics.Metric]] = None
+        metrics: Optional[List[torchmetrics.Metric]] = None,
+        **kwargs
 ):
     num_classes = len(train_dataset.classes)
 
@@ -44,12 +43,11 @@ def train_model_classifier(
         train_dataset,
         valid_dataset,
         loss_fn,
-        optimizer,
-        num_epochs,
-        batch_size,
-        print_every_x_steps,
-        metrics,
+        num_epochs=num_epochs,
+        batch_size=batch_size,
+        metrics=metrics,
         device=None,
         monitor_metric_name='MulticlassAccuracy',
-        monitor_metric_mode='max'
+        monitor_metric_mode='max',
+        **kwargs
     )

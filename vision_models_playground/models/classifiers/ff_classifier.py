@@ -52,7 +52,7 @@ def main():
         num_classes=10,
     )
     train_dataset, valid_dataset = get_cifar10_dataset()
-    train_model_classifier(model, train_dataset, valid_dataset, num_epochs=100)
+    train_model_classifier(model, train_dataset, valid_dataset, num_epochs=100, num_workers=2)
 
 
 if __name__ == '__main__':
