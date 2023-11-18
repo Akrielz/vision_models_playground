@@ -229,13 +229,10 @@ class Evaluator:
 
         # Prepare metric log
         metric_log = self.__prepare_metric_log(metrics, phase, step)
-        loss_log = self.__prepare_loss_log(loss, phase, step)
 
-        phase_padded = phase
-        if phase_padded == 'Test':
-            phase_padded = f'{phase_padded} '
+        phase_padded = f'{phase} '
 
-        description = color + f"{phase_padded} Step: {i} | {loss_log} | {metric_log}"
+        description = color + f"{phase_padded} Step: {i} | {metric_log}"
         progress_bar.set_description_str(description, refresh=False)
 
     def create_report(self):

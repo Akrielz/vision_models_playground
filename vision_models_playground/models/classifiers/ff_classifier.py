@@ -51,8 +51,8 @@ def main():
         hidden_dims=[256, 128],
         num_classes=10,
     )
-    train_dataset, test_dataset = get_cifar10_dataset()
-    train_model_classifier(model, train_dataset, test_dataset, num_epochs=100)
+    train_dataset, valid_dataset = get_cifar10_dataset()
+    train_model_classifier(model, train_dataset, valid_dataset, num_epochs=100)
 
 
 if __name__ == '__main__':

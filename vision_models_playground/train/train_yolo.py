@@ -16,7 +16,7 @@ from vision_models_playground.utility.config import config_wrapper
 def train_yolo_v1(
         model: nn.Module,
         train_dataset: Optional[torch.utils.data.Dataset] = None,
-        test_dataset: Optional[torch.utils.data.Dataset] = None,
+        valid_dataset: Optional[torch.utils.data.Dataset] = None,
         loss_fn: Optional[Callable] = None,
         optimizer: Optional[torch.optim.Optimizer] = None,
         num_epochs: int = 100,
@@ -30,8 +30,8 @@ def train_yolo_v1(
     if train_dataset is None:
         train_dataset = get_voc_detection_dataset_yolo()[0]
 
-    if test_dataset is None:
-        test_dataset = get_voc_detection_dataset_yolo()[1]
+    if valid_dataset is None:
+        valid_dataset = get_voc_detection_dataset_yolo()[1]
 
     num_classes = len(train_dataset.classes)
 
@@ -61,7 +61,7 @@ def train_yolo_v1(
     train_model(
         model,
         train_dataset,
-        test_dataset,
+        valid_dataset,
         loss_fn,
         optimizer,
         num_epochs,
@@ -86,7 +86,7 @@ def main():
         grid_size=grid_size,
         download=False
     )[0]
-    test_dataset = get_voc_detection_dataset_yolo(
+    valid_dataset = get_voc_detection_dataset_yolo(
         num_bounding_boxes=num_bounding_boxes,
         grid_size=grid_size,
         download=False
@@ -107,7 +107,7 @@ def main():
     train_yolo_v1(
         model=model,
         train_dataset=train_dataset,
-        test_dataset=test_dataset,
+        valid_dataset=valid_dataset,
         num_epochs=num_epochs,
         batch_size=batch_size,
         num_bounding_boxes=num_bounding_boxes,

@@ -109,8 +109,8 @@ def main():
         activation=None,
     )
 
-    train_dataset, test_dataset = get_cifar10_dataset()
-    train_model_classifier(model, train_dataset, test_dataset, batch_size=128)
+    train_dataset, valid_dataset = get_cifar10_dataset()
+    train_model_classifier(model, train_dataset, valid_dataset, batch_size=128)
 
 
 if __name__ == "__main__":

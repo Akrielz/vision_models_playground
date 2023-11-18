@@ -12,7 +12,7 @@ from vision_models_playground.train.train_models import train_model
 def train_model_classifier(
         model: nn.Module,
         train_dataset: torch.utils.data.Dataset,
-        test_dataset: torch.utils.data.Dataset,
+        valid_dataset: torch.utils.data.Dataset,
         loss_fn: Optional[Callable] = None,
         optimizer: Optional[torch.optim.Optimizer] = None,
         num_epochs: int = 100,
@@ -42,7 +42,7 @@ def train_model_classifier(
     train_model(
         model,
         train_dataset,
-        test_dataset,
+        valid_dataset,
         loss_fn,
         optimizer,
         num_epochs,

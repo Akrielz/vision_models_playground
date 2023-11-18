@@ -26,6 +26,9 @@ class LossTracker(Metric):
 
             num_samples = pred.shape[0]
 
+            if self.reduction == 'none':
+                loss = loss.sum()
+
             if self.reduction == 'mean':
                 loss *= num_samples
 
