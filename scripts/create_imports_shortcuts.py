@@ -135,5 +135,5 @@ def create_import_shortcuts(
 
 if __name__ == "__main__":
     create_imports_for_all_sub_dirs(
-        dir_path="vision_models_playground"
+        dir_path="vision_models_playground/external"
     )

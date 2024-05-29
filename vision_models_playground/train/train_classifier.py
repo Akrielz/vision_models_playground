@@ -4,7 +4,7 @@ import torch
 import torchmetrics
 from torch import nn
 from torch.nn import CrossEntropyLoss
-from torchmetrics import Accuracy, AveragePrecision, AUROC, Dice, F1Score
+from torchmetrics import Accuracy, AveragePrecision, AUROC, Dice, F1Score, MatthewsCorrCoef
 
 from vision_models_playground.train.train_models import train_model
 
@@ -33,9 +33,8 @@ def train_model_classifier(
     if metrics is None:
         metrics = [
             Accuracy(**metrics_kwargs),
-            AveragePrecision(**metrics_kwargs),
-            AUROC(**metrics_kwargs),
             F1Score(**metrics_kwargs),
+            MatthewsCorrCoef(**metrics_kwargs),
         ]
 
     train_model(
