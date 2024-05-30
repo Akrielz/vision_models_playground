@@ -6,20 +6,18 @@ from torch import nn
 from torch.nn import CrossEntropyLoss
 from torchmetrics import Accuracy, F1Score, MatthewsCorrCoef
 
-from vision_models_playground.train.train_models import train_model
+from vision_models_playground.evaluate import evaluate_model
 
 
-def train_model_classifier(
+def evaluate_model_classifier(
         model: nn.Module,
-        train_dataset: torch.utils.data.Dataset,
-        valid_dataset: torch.utils.data.Dataset,
+        test_dataset: torch.utils.data.Dataset,
         loss_fn: Optional[Callable] = None,
-        num_epochs: int = 100,
         batch_size: int = 64,
         metrics: Optional[List[torchmetrics.Metric]] = None,
         **kwargs
 ):
-    num_classes = len(train_dataset.classes)
+    num_classes = len(test_dataset.classes)
 
     # init loss function
     if loss_fn is None:
@@ -37,16 +35,11 @@ def train_model_classifier(
             MatthewsCorrCoef(**metrics_kwargs),
         ]
 
-    train_model(
-        model,
-        train_dataset,
-        valid_dataset,
-        loss_fn,
-        num_epochs=num_epochs,
+    evaluate_model(
+        model=model,
+        test_dataset=test_dataset,
+        loss_fn=loss_fn,
         batch_size=batch_size,
         metrics=metrics,
-        device=None,
-        monitor_metric_name='MulticlassAccuracy',
-        monitor_metric_mode='max',
         **kwargs
     )

@@ -10,7 +10,7 @@ def load_model_from_weights(
         model: nn.Module,
         weights_path: str,
         device: Optional[torch.device] = None
-):
+) -> nn.Module:
     """
     Load the weights of a model
 
